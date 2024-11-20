@@ -1,0 +1,50 @@
+body {
+    font-family: Arial, sans-serif;
+  }
+  
+  nav {
+    background-color: #3f51b5;
+    padding: 10px;
+  }
+  
+  nav a {
+    color: white;
+    text-decoration: none;
+    margin-right: 10px;
+  }
+  
+  form {
+    max-width: 300px;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  input, button {
+    margin: 5px 0;
+    padding: 10px;
+  }
+  
+  .profile {
+    max-width: 600px;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+  }
+  
+  .profile img {
+    display: block;
+    margin: 20px auto;
+    border-radius: 50%;
+  }
+  
+  .profile form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .profile label {
+    margin-top: 10px;
+  }
+  
