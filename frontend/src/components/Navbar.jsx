@@ -1,13 +1,11 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   AppBar, Toolbar, Typography, Button, Box, Menu, MenuItem, IconButton, Tooltip
 } from '@mui/material';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Rating } from '@mui/material';
 import AuthContext from '../contexts/AuthContext';
-import { fetchRating, giveRating } from '../services/api';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import axios from 'axios';
 import logo from '../assets/logo.png'
 
 const Navbar = () => {
@@ -17,8 +15,6 @@ const Navbar = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [ratingAnchorEl,setRatingAnchorEl] = useState(null);
   const [averageRating, setAverageRating] = useState(4.8); // State for the average rating
-  const [userRating, setUserRating] = useState(null); // State for the user's rating
-  const [hoverRating, setHoverRating] = useState(null); // Hover effect
   const [myRating, setMyRating] = useState(null);
 
   // Fetch the average rating when the component loads

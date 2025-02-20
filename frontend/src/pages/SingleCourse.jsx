@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Container, Grid, Typography, Card, Tabs, Tab, Box, Stack, Button, Divider, CardContent, List, ListItem, ListItemIcon, ListItemText, Link, IconButton, Modal, TextField,
+  Container, Grid, Typography, Card, Tabs, Tab, Box, Button, Divider, CardContent, List, ListItem, ListItemText, IconButton, TextField,
   Dialog, DialogContent, DialogActions
 } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -13,7 +13,7 @@ import FeedbackIcon from '@mui/icons-material/Feedback';
 import LectureIcon from '@mui/icons-material/PlayLesson';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
-import FolderIcon from '@mui/icons-material/Folder';
+// import FolderIcon from '@mui/icons-material/Folder';
 import DoubleArrowIcon from '@mui/icons-material/DoubleArrow';
 
 const SingleCourse = () => {

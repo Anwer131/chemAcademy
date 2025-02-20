@@ -1,8 +1,8 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext} from 'react';
 import { Grid, Container } from '@mui/material';
 import AuthContext from '../contexts/AuthContext';
 import MyCourseCard from '../components/MyCourseCard';
-import { fetchEnrolledCourses } from '../services/api';
+// import { fetchEnrolledCourses } from '../services/api';
 
 const Home = () => {
   const { user, enrolledCourses } = useContext(AuthContext);

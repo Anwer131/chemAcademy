@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { fetchCourses, deleteCourse } from '../services/api';
-import { Container, Typography, Button, Card, CardContent, CardActions, IconButton, Grid } from '@mui/material';
+import { Container, Typography, Card, CardContent, CardActions, IconButton, Grid } from '@mui/material';
 import { Delete } from '@mui/icons-material';
 
 const ManageCourses = () => {

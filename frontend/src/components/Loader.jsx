@@ -1,4 +1,3 @@
-import React, { useState, useEffect } from 'react';
 import './Loader.css'; // CSS file for the loader
 
 const Loader = () => {
