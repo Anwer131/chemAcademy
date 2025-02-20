@@ -182,7 +182,8 @@ const SingleCourse = () => {
                 <Typography variant="body">{selectedProf?.lectures?.label}</Typography>
               </Stack>
               </Link> */}
-              <iframe 
+              <iframe
+                title='lectures' 
                 src={`https://drive.google.com/embeddedfolderview?id=${selectedProf?.lectures?.link}#grid`} 
                 width="100%" 
                 height="600" 
@@ -203,6 +204,7 @@ const SingleCourse = () => {
               </Stack>
               </Link> */}
               <iframe 
+                title='tutorials'
                 src={`https://drive.google.com/embeddedfolderview?id=${selectedProf?.tutorials?.link}#grid`} 
                 width="100%" 
                 height="600" 
@@ -223,6 +225,7 @@ const SingleCourse = () => {
               </Stack>
               </Link> */}
               <iframe 
+                title='pyq'
                 src={`https://drive.google.com/embeddedfolderview?id=${selectedProf?.pyq?.link}#grid`} 
                 width="100%" 
                 height="600" 

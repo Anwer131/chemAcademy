@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Container, Typography, TextField, Button, Box, Card, CardContent } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
-import { addProfessor } from '../services/api';
+// import { addProfessor } from '../services/api';
 
 const AddProfessor = () => {
   const {courseCode} = useParams();
