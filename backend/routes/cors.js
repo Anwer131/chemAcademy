@@ -1,8 +1,6 @@
-const express = require('express');
 const cors = require('cors');
-const app = express();
 
-const whitelist = ['http://localhost:3000', 'https://localhost:5000'];
+const whitelist = ['http://localhost:3000', 'https://chemixlib.netlify.app'];
 
 var corsOptionsDelegate = (req, callback) => {
     var corsOptions;

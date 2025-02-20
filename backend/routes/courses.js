@@ -32,7 +32,7 @@ router.route('/')
   try {
     var courses = await Course.find();
     res.json(courses);
-    console.log(courses)
+    // console.log(courses)
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -57,7 +57,6 @@ router.route('/:courseCode')
       err.status = 404;
       return next(err);
     }
-    console.log("found course: ", course);
     res.setHeader('Content-Type','Application/json');
     res.json(course);
   }, (err) => next(err))
@@ -165,10 +164,10 @@ router.route('/:courseCode/professors')
           pyq,
           feedback: [],
         };
-        console.log(newProfessor);
+        // console.log(newProfessor);
         course.professors.push(newProfessor);
         const updatedCourse = await course.save();
-        console.log('Updated course:', updatedCourse);
+        // console.log('Updated course:', updatedCourse);
         res.setHeader('Content-Type', 'application/json');
         res.json(updatedCourse);
     } catch (err) {
@@ -193,7 +192,7 @@ router.route('/:courseCode/:index')
       err.status = 404;
       return next(err);
     }
-    console.log("found course: ", course.professors[req.params.index]);
+    // console.log("found course: ", course.professors[req.params.index]);
     res.setHeader('Content-Type','Application/json');
     res.json(course.professors[req.params.index]);
   },(err) => next(err))

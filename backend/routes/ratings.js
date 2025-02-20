@@ -12,7 +12,7 @@ router.use(bodyParser.json());
 router.post("/", cors.cors, authenticate.verifyUser, async (req, res) => {
     const { rating } = req.body;
     const userId = req.user._id;
-    console.log(userId)
+    // console.log(userId)
     try {
         // Check if the user has already rated
         const existingRating = await Rating.findOne({ userId });
@@ -35,7 +35,7 @@ router.post("/", cors.cors, authenticate.verifyUser, async (req, res) => {
 });
 // Fetch average rating
 router.get("/", cors.cors, async (req, res) => {
-    console.log(req.body);
+    // console.log(req.body);
     try {
         const ratings = await Rating.find();
         const averageRating = ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length || 0;

@@ -69,7 +69,7 @@ bookRouter.route('/:bookId')
 .get(cors.cors, (req,res,next) => {
     Book.findById(req.params.bookId)
     .then((book) => {
-        console.log('Book fetched: ', book);
+        // console.log('Book fetched: ', book);
         res.setHeader('Content-Type', 'application/json');
         res.json(book);
     }, (err) => next(err))
@@ -91,7 +91,7 @@ bookRouter.route('/:bookId')
         }
         book.save()
         .then((updatedbook) => {
-            console.log('Updated book: ', updatedbook);
+            // console.log('Updated book: ', updatedbook);
             res.setHeader('Content-Type', 'application/json');
             res.json(updatedbook);
         }, (err) => next(err))
