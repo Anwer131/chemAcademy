@@ -20,12 +20,22 @@ app.use(express.json()); // Add this line to parse JSON request bodies
 app.use(cors());
 app.use('/uploads', express.static('uploads'));
 
-// Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true
+const mongoURI = process.env.MONGODB_URI;
+
+if (!mongoURI) {
+  console.error('❌ MONGODB_URI is not defined. Please check environment variables.');
+  process.exit(1);  // Exit if URI is missing
+}
+
+mongoose.connect(mongoURI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
 })
-.then(() => console.log('MongoDB connected'))
-.catch(err => console.error(err));
+.then(() => console.log('✅ MongoDB connected successfully'))
+.catch(err => {
+  console.error('❌ MongoDB connection error:', err.message);
+  process.exit(1);  // Exit process on connection failure
+});
 
 // Passport configuration
 require('./authenticate');
