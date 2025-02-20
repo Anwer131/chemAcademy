@@ -9,8 +9,7 @@ import {
   CardContent,
   CardActions,
   Button,
-  IconButton,
-  Box
+  IconButton
 } from '@mui/material';
 import { Delete } from '@mui/icons-material';
 
