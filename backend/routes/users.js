@@ -36,7 +36,7 @@ router.get('/all', cors.corsWithOptions, authenticate.verifyUser, authenticate.v
   // Route to get enrolled courses details
   router.get('/enrolled-courses', cors.cors, authenticate.verifyUser, async (req, res) => {
     try {
-      // Fetch the course details using the user's enrolled course IDs
+      // Fetch the course details using the user's enrolled course ID
       const courses = await Course.find({ _id: { $in: req.user.courses } });
       res.status(200).json(courses);
     } catch (error) {
@@ -44,16 +44,30 @@ router.get('/all', cors.corsWithOptions, authenticate.verifyUser, authenticate.v
       res.status(500).json({ message: 'Failed to fetch enrolled courses' });
     }
   });
-  router.post('/unenroll/:courseCode',cors.cors, authenticate.verifyUser, async (req, res) => {
+  const mongoose = require('mongoose');
+
+  router.delete('/unenroll/:courseId', cors.cors, authenticate.verifyUser, async (req, res) => {
     try {
-      const updatedUser = await User.findByIdAndUpdate(
-        req.user._id,
-        { $pull: { courses: { code: req.params.courseCode } } },
-        { new: true }
-      );
-      res.json(updatedUser);
+      const courseId = req.params.courseId;
+  
+      // Find the user first
+      let user = await User.findById(req.user._id);
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+  
+      // Manually filter out the course
+      user.courses = user.courses.filter(course => course._id.toString() !== courseId);
+  
+      // Save the user after removing the course
+      await user.save();
+  
+      res.json(user);
     } catch (error) {
+      console.error('Error unenrolling from course:', error);
       res.status(500).json({ error: 'Error unenrolling from course' });
     }
   });
+  
+  
 module.exports = router;

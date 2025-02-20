@@ -1,3 +1,4 @@
+const { createFolder } = require('../configDrive');
 const express = require('express');
 const router = express.Router();
 const Course = require('../models/course');
@@ -6,14 +7,22 @@ const authenticate = require('../authenticate');
 const cors = require('./cors');
 const Book = require('../models/book');
 
+
 router.use(express.json());
 
 router.route('/')
 .options(cors.corsWithOptions, (req, res) => { res.sendStatus(200); })
 .post(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, async (req, res) => {
   try {
-    const course = new Course(req.body);
+    const stdCode = req.body.code ? req.body.code.slice(0, 3).toLowerCase() + req.body.code.slice(3)
+                  : req.body.code
+    const existingCourse = await Course.findOne({ code: stdCode });
+    if (existingCourse) {
+      return res.status(400).json({ message: 'Course already exists' });
+    }
+    const course = new Course({ code: stdCode, title:req.body.title});
     await course.save();
+    
     res.status(201).json(course);
   } catch (err) {
     res.status(400).json({ message: err.message });
@@ -21,7 +30,7 @@ router.route('/')
 })
 .get(cors.cors, authenticate.verifyUser, async (req, res) => {
   try {
-    const courses = await Course.find();
+    var courses = await Course.find();
     res.json(courses);
     console.log(courses)
   } catch (err) {
@@ -29,6 +38,14 @@ router.route('/')
   }
 });
 
+router.delete('/:courseId', authenticate.verifyUser, authenticate.verifyAdmin, async (req, res) => {
+  try {
+    const deletedCourse = await Course.findByIdAndDelete({_id:req.params.courseId});
+    res.json(deletedCourse);
+  } catch (error) {
+    console.log(error);
+  }
+})
 //handling individual courses
 router.route('/:courseCode')
 .options(cors.corsWithOptions, (req, res) => { res.sendStatus(200); })
@@ -125,27 +142,40 @@ router.route('/:courseCode/:bookId')
   .catch((err) => next(err))
 })
 
-//add a new professor data
+// professor addition
 router.route('/:courseCode/professors')
 .options(cors.corsWithOptions, (req, res) => { res.sendStatus(200); })
-.post(cors.corsWithOptions,authenticate.verifyUser,authenticate.verifyAdmin,(req,res,next)=>{
-  Course.findOne({code:req.params.courseCode})
-  .then((course)=> {
-    if(course==null){
-      err = new Error('Course: ' + req.params.courseCode+ ' not found');
-      err.status = 404;
-      return next(err);
+.post(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, async (req, res, next) => {
+    try {
+        // Find the course in the database
+        const course = await Course.findOne({ code: req.params.courseCode });
+
+        if (!course) {
+            const err = new Error('Course: ' + req.params.courseCode + ' not found');
+            err.status = 404;
+            return next(err);
+        }
+
+        const {name,policy, lectures, tutorials, pyq} =  req.body;
+        const newProfessor = {
+          name,
+          policy,
+          lectures,
+          tutorials,
+          pyq,
+          feedback: [],
+        };
+        console.log(newProfessor);
+        course.professors.push(newProfessor);
+        const updatedCourse = await course.save();
+        console.log('Updated course:', updatedCourse);
+        res.setHeader('Content-Type', 'application/json');
+        res.json(updatedCourse);
+    } catch (err) {
+        next(err);
     }
-    course.professors.push(req.body);
-    course.save()
-    .then((updatedCourse) => {
-      console.log("updated course: ", updatedCourse);
-      res.setHeader('Content-Type','Application/json');
-      res.json(updatedCourse);
-    },(err) =>  next(err))
-  },(err) => next(err))
-  .catch((err) => next(err))
-})
+});
+
 
 //professors data
 router.route('/:courseCode/:index')

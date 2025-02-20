@@ -6,7 +6,7 @@ const feedBackSchema = new mongoose.Schema({
         type: Number,
         min: 1,
         max: 5,
-        required: false
+        required: true
     },
     comment: {
         type: String,
@@ -19,27 +19,57 @@ const feedBackSchema = new mongoose.Schema({
 },{
     timestamps: true
 })
+const coursePolicySchema = new mongoose.Schema({
+    minor: {
+        type: String
+    },
+    major: {
+        type: String
+    },
+    project: {
+        type: String
+    },
+    assignments: {
+        type: String
+    },
+    quiz: {
+        type: String
+    },
+    tutorials: {
+        type: String
+    },
+    miscelleneous: {
+        type: String
+    },
+    attendancePolicy: {
+        type: String
+    },
+    other: {
+        type: [String],
+        default:[]
+    }
+})
 const professorSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true
     },
-    policy: [{
-        type: String
-    }],
+    policy: {
+        type:coursePolicySchema
+    },
     lectures: {
-        type: String // Assuming this is a link to a folder
+        label: { type: String, required: true },
+        link: { type: String, required: true }
     },
     tutorials: {
-        type: String // Assuming this is a link to a folder
+        label: { type: String, required: true },
+        link: { type: String, required: true }
     },
     pyq: {
-        type: String // Assuming this is a link to a file
+        label: { type: String, required: true },
+        link: { type: String, required: true }
     },
-    feedback: [feedBackSchema],
-    rating: {
-        type: Number
-    }
+    feedback: [feedBackSchema]
 })
 
 const courseSchema = new mongoose.Schema({

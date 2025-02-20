@@ -3,7 +3,7 @@ import { Card, CardContent, CardActions, Button, Typography, IconButton, Box } f
 import { Delete } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
-const CourseCard = ({ course, isAdmin, isEnrolled, onEnroll, onDelete }) => {
+const CourseCard = ({ course, isAdmin, isEnrolled, onEnroll, onDelete, isLoading }) => {
   const navigate = useNavigate();
 
   // Function to handle navigation to the SingleCourse page
@@ -16,27 +16,27 @@ const CourseCard = ({ course, isAdmin, isEnrolled, onEnroll, onDelete }) => {
       <CardContent>
         {/* Course Title: Clickable to navigate to the course details page */}
         <Box
-          sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
+          sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'bold' } }}
           onClick={handleCourseClick}
         >
           <Typography variant="h6" gutterBottom>
-            {course.title}
+            {course.title.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
           </Typography>
         </Box>
         <Typography variant="subtitle1" gutterBottom>
-          {course.code}
+          {course.code.toUpperCase()}
         </Typography>
       </CardContent>
 
       <CardActions>
-        {/* Enroll Button: Disabled if already enrolled */}
+        {/* Enroll Button: Updates dynamically based on enrollment status */}
         <Button
           variant="contained"
           color="primary"
           onClick={onEnroll}
-          disabled={isEnrolled}
+          disabled={isEnrolled || isLoading}
         >
-          {isEnrolled ? 'Enrolled' : 'Enroll'}
+          {isEnrolled ? 'Enrolled' : isLoading ? 'Enrolling...' : 'Enroll'}
         </Button>
 
         {/* Delete Button: Only visible for admins */}

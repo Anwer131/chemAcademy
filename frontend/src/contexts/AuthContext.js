@@ -1,15 +1,18 @@
 import React, { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
+const API_URL = 'http://localhost:5000';
+
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [enrolledCourses, setEnrolledCourses] = useState([]);
   const [token, setToken] = useState(localStorage.getItem('token') || null);
 
   const register = async (userData) => {
     try {
-      await axios.post('http://localhost:5000/auth/signup', userData);
+      await axios.post(`${API_URL}/auth/signup`, userData);
     } catch (err) {
       console.error('Registration Error:', err.response ? err.response.data : err.message);
       throw err;
@@ -20,19 +23,20 @@ export const AuthProvider = ({ children }) => {
     try {
       const res = await axios.post('http://localhost:5000/auth/login', { username, password });
       localStorage.setItem('token', res.data.token);
+      setToken(res.data.token);
       setUser(res.data.user);
+      console.log("Login successful, token saved in local storage");
     } catch (err) {
       console.error('Login Error:', err.response ? err.response.data : err.message);
       throw err;
     }
   };
   
-  
-
   const logout = () => {
     setToken(null);
     setUser(null);
     localStorage.removeItem('token');
+    setEnrolledCourses([]);  // Optionally clear enrolled courses when logging out
   };
 
   const checkAuth = async () => {
@@ -47,26 +51,32 @@ export const AuthProvider = ({ children }) => {
       }
     }
   };
-  const updateProfile = async (formData) => {
-    try {
-      const res = await axios.put('http://localhost:5000/profile/update', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      setUser(res.data.user);
-    } catch (err) {
-      console.error('Profile Update Error:', err);
+
+  const loadEnrolledCourses = async () => {
+    if (token) {
+      try {
+        const res = await axios.get(`${API_URL}/users/enrolled-courses`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setEnrolledCourses(res.data);
+      } catch (error) {
+        console.error('Error loading enrolled courses:', error);
+      }
     }
   };
 
   useEffect(() => {
-    checkAuth();
+    checkAuth(); // Check authentication on component mount
   }, [token]);
 
+  useEffect(() => {
+    if (token) {
+      loadEnrolledCourses(); // Load courses when token is available
+    }
+  }, [token]);  // Re-fetch courses when the token changes
+
   return (
-    <AuthContext.Provider value={{ user, token, login, register, logout,updateProfile }}>
+    <AuthContext.Provider value={{ user, setUser, enrolledCourses, setEnrolledCourses, token, login, register, logout, loadEnrolledCourses }}>
       {children}
     </AuthContext.Provider>
   );

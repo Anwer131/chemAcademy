@@ -2,70 +2,11 @@ import axios from 'axios';
 
 const API_URL = 'http://localhost:5000';
 
-/**
- * Get token from localStorage
- */
+/* Get token from localStorage*/
 const getToken = () => localStorage.getItem('token');
 
 /**
- * Set default headers for Axios
- */
-axios.defaults.headers.common['Authorization'] = `Bearer ${getToken()}`;
-
-/**
  * AUTHENTICATION APIs
- */
-
-// Login user
-export const login = async (username, password) => {
-  try {
-    const res = await axios.post(`${API_URL}/auth/login`, { username, password });
-    if (res.data.success) {
-      localStorage.setItem('token', res.data.token);
-      return res.data.user;
-    }
-    throw new Error(res.data.message);
-  } catch (error) {
-    console.error('Login Error:', error);
-    throw error;
-  }
-};
-
-// Register user
-export const register = async (userData) => {
-  try {
-    const res = await axios.post(`${API_URL}/auth/signup`, userData);
-    return res.data;
-  } catch (error) {
-    console.error('Register Error:', error);
-    throw error;
-  }
-};
-
-// Check if user is authenticated
-export const checkAuth = async () => {
-  const token = getToken();
-  if (!token) return null;
-
-  try {
-    const res = await axios.get(`${API_URL}/auth/check`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return res.data.user;
-  } catch (error) {
-    console.error('Auth Check Error:', error);
-    logout(); // Clear token if invalid
-    return null;
-  }
-};
-
-// Logout user
-export const logout = () => {
-  localStorage.removeItem('token');
-};
-
-/**
- * USERS MANAGEMENT APIs
  */
 
 // Fetch all users
@@ -114,10 +55,11 @@ export const deleteUser = async (userId) => {
 // Fetch all courses
 export const fetchCourses = async () => {
   try {
-    const res = await axios.get(`${API_URL}/courses`);
+    const res = await axios.get(`${API_URL}/courses`,{
+      headers: { Authorization: `Bearer ${getToken()}` },
+    });
     return res.data;
   } catch (error) {
-    console.error('Fetch Courses Error:', error);
     throw error;
   }
 };
@@ -161,24 +103,22 @@ export const enrollCourse = async (courseId) => {
     throw error;
   }
 };
-export const unenrollCourse = async (courseCode) => {
-  const res = await axios.post(`${API_URL}/users/unenroll/${courseCode}`, {}, {
-    headers: { Authorization: `Bearer ${getToken()}` },
-  });
-  return res.data;
-};
-
-export const fetchEnrolledCourses = async () => {
-  try {
-    const response = await axios.get(`${API_URL}/users/enrolled-courses`, {
+export const unenrollCourse = async (courseId) => {
+  try{
+    const res = await axios.delete(`${API_URL}/users/unenroll/${courseId}`, {
       headers: { Authorization: `Bearer ${getToken()}` },
     });
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching enrolled courses:', error);
-    throw error;
+    console.log(res.data);
+} catch(error){
+  if(error.response){
+    return error.response.data;
   }
+  console.log(error);
+  throw error;
+}
 };
+
+
 // Delete a course
 export const deleteCourse = async (courseId) => {
   try {
@@ -198,7 +138,9 @@ export const deleteCourse = async (courseId) => {
 // Fetch all books
 export const fetchBooks = async () => {
   try {
-    const res = await axios.get(`${API_URL}/books`);
+    const res = await axios.get(`${API_URL}/books`,{
+      headers: { Authorization: `Bearer ${getToken()}` },
+    });
     return res.data;
   } catch (error) {
     console.error('Fetch Books Error:', error);
@@ -242,7 +184,7 @@ export const updateProfile = async (profileData) => {
     if (profileData.profilePic) formData.append('profilePic', profileData.profilePic);
 
     // Make API request
-    const response = await axios.put(`${API_URL}/update`, formData, {
+    const response = await axios.put(`${API_URL}/profile/update`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
         Authorization: `Bearer ${getToken()}`,
@@ -260,7 +202,9 @@ export const updateProfile = async (profileData) => {
 // couse details:
 export const fetchCourseDetails = async (courseCode) => {
   try {
-    const response = await axios.get(`${API_URL}/courses/${courseCode}`);
+    const response = await axios.get(`${API_URL}/courses/${courseCode}`,{
+      headers: { Authorization: `Bearer ${getToken()}` },
+    });
     return response.data;
   } catch (error) {
     console.error('Error fetching course details:', error);
@@ -295,3 +239,20 @@ export const giveRating = async (newRating) => {
     console.error('Error submitting rating:', error);
   }
 };
+
+export const addProfessor = async (professor) => {
+  // try {
+  //   const data = await axios.post(`${API_URL/api/addprov}`,professor,{
+  //     headers: { Authorization: `Bearer ${getToken()}` },
+  //   })
+  // } catch (error) {
+  //   console.log(error);
+  // }
+}
+
+export const updateCoursePolicy = async (obj) => {
+  console.log("update course content");
+}
+export const submitFeedback = async (obj) => {
+  console.log("submit feedback")
+}

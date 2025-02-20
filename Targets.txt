@@ -1,0 +1,4 @@
+make the course policy an array of strings
+- make api for add professor
+- update the course page
+- fill the details of coursepage and update the links

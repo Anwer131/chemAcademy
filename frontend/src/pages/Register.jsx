@@ -29,8 +29,8 @@ const Register = () => {
       <Box mt={5} textAlign="center">
         <Typography variant="h4" gutterBottom>Register</Typography>
         <form onSubmit={handleRegister}>
-          <TextField label="Username" fullWidth margin="normal" value={username} onChange={(e) => setUsername(e.target.value)} />
-          <TextField label="Password" type="password" fullWidth margin="normal" value={password} onChange={(e) => setPassword(e.target.value)} />
+          <TextField label="Kerberos Id" fullWidth margin="normal" value={username} onChange={(e) => setUsername(e.target.value)} />
+          <TextField label="Choose Password" type="password" fullWidth margin="normal" value={password} onChange={(e) => setPassword(e.target.value)} />
           <TextField label="First Name" fullWidth margin="normal" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
           <TextField label="Last Name" fullWidth margin="normal" value={lastName} onChange={(e) => setLastName(e.target.value)} />
           <TextField label="Department" fullWidth margin="normal" value={department} onChange={(e) => setDepartment(e.target.value)} />

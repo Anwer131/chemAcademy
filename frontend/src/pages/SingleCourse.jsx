@@ -1,24 +1,33 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Container, Grid, Typography, Card, Tabs, Tab, Box, RadioGroup,
-  FormControlLabel, Radio, List, ListItem, ListItemText, Avatar,
-  CardContent, Divider
+  Container, Grid, Typography, Card, Tabs, Tab, Box, Stack, Button, Divider, CardContent, List, ListItem, ListItemIcon, ListItemText, Link, IconButton, Modal, TextField,
+  Dialog, DialogContent, DialogActions
 } from '@mui/material';
-import { useParams } from 'react-router-dom';
-import { fetchCourseDetails } from '../services/api';
+import { useParams, useNavigate } from 'react-router-dom';
+import { fetchCourseDetails, updateCoursePolicy, submitFeedback } from '../services/api'; // API calls
 import BookIcon from '@mui/icons-material/Book';
 import PolicyIcon from '@mui/icons-material/Policy';
 import SchoolIcon from '@mui/icons-material/School';
-import ForumIcon from '@mui/icons-material/Forum';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import FeedbackIcon from '@mui/icons-material/Feedback';
 import LectureIcon from '@mui/icons-material/PlayLesson';
+import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
+import FolderIcon from '@mui/icons-material/Folder';
+import DoubleArrowIcon from '@mui/icons-material/DoubleArrow';
 
 const SingleCourse = () => {
   const { courseCode } = useParams();
   const [course, setCourse] = useState(null);
   const [selectedTab, setSelectedTab] = useState(0);
   const [selectedProfessor, setSelectedProfessor] = useState('');
+  const [policyModalOpen, setPolicyModalOpen] = useState(false);
+  const [feedbackText, setFeedbackText] = useState('');
+  const [rating, setRating] = useState(5);
+  const [policyData, setPolicyData] = useState({});
+  const navigate = useNavigate();
+  
+  const isAdmin = true; // Change this based on actual authentication logic
 
   useEffect(() => {
     const loadCourseDetails = async () => {
@@ -27,6 +36,7 @@ const SingleCourse = () => {
         setCourse(data);
         if (data.professors && data.professors.length > 0) {
           setSelectedProfessor(data.professors[0].name);
+          console.log(data.professors[0]);
         }
       } catch (error) {
         console.error('Error loading course details:', error);
@@ -39,39 +49,73 @@ const SingleCourse = () => {
     setSelectedTab(newValue);
   };
 
-  const handleProfessorChange = (event) => {
-    setSelectedProfessor(event.target.value);
+  const handleProfessorChange = (profName) => {
+    setSelectedProfessor(profName);
+  };
+
+  const openEditPolicyModal = () => {
+    setPolicyData(selectedProf.policy || {});
+    setPolicyModalOpen(true);
+  };
+
+  const handlePolicyChange = (event) => {
+    setPolicyData({ ...policyData, [event.target.name]: event.target.value });
+  };
+
+  const savePolicyChanges = async () => {
+    try {
+      await updateCoursePolicy(courseCode, selectedProfessor, policyData);
+      setPolicyModalOpen(false);
+      const updatedCourse = await fetchCourseDetails(courseCode);
+      setCourse(updatedCourse);
+    } catch (error) {
+      console.error('Error updating policy:', error);
+    }
+  };
+
+  const handleSubmitFeedback = async () => {
+    try {
+      await submitFeedback(courseCode, selectedProfessor, { rating, comment: feedbackText });
+      setFeedbackText('');
+      setRating(5);
+      const updatedCourse = await fetchCourseDetails(courseCode);
+      setCourse(updatedCourse);
+    } catch (error) {
+      console.error('Error submitting feedback:', error);
+    }
   };
 
   if (!course) {
     return <Typography variant="h5" align="center">Loading...</Typography>;
   }
 
+  const selectedProf = course.professors.find((prof) => prof.name === selectedProfessor);
+
   return (
-    <Container maxWidth="lg" sx={{ mt: 5, color: '#f5f5f5', backgroundColor: '#121212', borderRadius: '8px', p: 4 }}>
-      {/* Header Section */}
-      <Box sx={{ mb: 4, textAlign: 'center' }}>
-        <Typography variant="h3" sx={{ fontWeight: 'bold', color: '#90caf9' }}>{course.title}</Typography>
-        <Typography variant="h6" sx={{ color: '#b0bec5', mt: 1 }}>Code: {course.code}</Typography>
+    <Container maxWidth="100%" sx={{ mt: 3 }}>
+      {/* Course Header */}
+      <Box sx={{ textAlign: 'center', mb: 3 }}>
+        <Typography variant="h4">{course.title.toUpperCase()}</Typography>
+        <Typography variant="h6" sx={{ color: 'text.secondary' }}>{course.code.toUpperCase()}</Typography>
       </Box>
 
-      <Grid container spacing={4}>
+      <Grid container spacing={2}>
         {/* Books Section */}
         <Grid item xs={12} md={3}>
-          <Card sx={{ p: 2, backgroundColor: '#1e1e1e', height: '100%' }}>
-            <Typography variant="h6" sx={{ mb: 2, textAlign: 'center', color: '#90caf9' }}>Books</Typography>
-            <Divider sx={{ mb: 2, backgroundColor: '#424242' }} />
+          <Card sx={{ p: 2 }}>
+            <Typography variant="h6" sx={{ textAlign: 'center' }}>Books</Typography>
+            <Divider sx={{ mb: 2 }} />
             {course.books.length > 0 ? (
               course.books.map((book) => (
-                <Card key={book._id} sx={{ mb: 2, backgroundColor: '#2e2e2e', color: '#f5f5f5' }}>
+                <Card key={book._id} sx={{ mb: 2 }}>
                   <CardContent>
-                    <Typography variant="subtitle1" gutterBottom><BookIcon /> {book.title}</Typography>
-                    <Typography variant="body2" sx={{ color: '#bdbdbd' }}>Author: {book.author}</Typography>
+                    <Typography variant="subtitle1"><BookIcon /> {book.title}</Typography>
+                    <Typography variant="body2">Author: {book.author}</Typography>
                   </CardContent>
                 </Card>
               ))
             ) : (
-              <Typography variant="body2" align="center" sx={{ color: '#bdbdbd' }}>No books available</Typography>
+              <Typography variant="body2" align="center">No books available</Typography>
             )}
           </Card>
         </Grid>
@@ -79,51 +123,144 @@ const SingleCourse = () => {
         {/* Course Content */}
         <Grid item xs={12} md={9}>
           {/* Professor Selection */}
-          <Card sx={{ mb: 4, p: 3, backgroundColor: '#1e1e1e', color: '#f5f5f5' }}>
-            <Typography variant="h6" sx={{ color: '#90caf9' }}>Select Professor</Typography>
-            <RadioGroup value={selectedProfessor} onChange={handleProfessorChange} sx={{ mt: 2 }}>
+          <Card sx={{ mb: 2, p: 2, display: 'flex', alignItems: 'center', gap: '15px' }}>
+            <Typography variant="h6">Select Professor: </Typography>
+            <Box display="flex" gap={2}>
               {course.professors.map((prof) => (
-                <FormControlLabel
+                <Button
                   key={prof.name}
-                  value={prof.name}
-                  control={<Radio />}
-                  label={
-                    <Box display="flex" alignItems="center">
-                      <Avatar sx={{ width: 30, height: 30, mr: 2, bgcolor: '#90caf9', color: '#121212' }}>
-                        {prof.name[0]}
-                      </Avatar>
-                      {prof.name}
-                    </Box>
-                  }
-                  sx={{ color: '#bdbdbd' }}
-                />
+                  onClick={() => handleProfessorChange(prof.name)}
+                  variant={selectedProfessor === prof.name ? "contained" : "outlined"}
+                >
+                  {prof.name}
+                </Button>
+                
               ))}
-            </RadioGroup>
+              <IconButton color="primary" onClick={() => navigate(`/admin/addProfessor/${courseCode}`)}>
+                <AddIcon />
+              </IconButton>
+            </Box>
           </Card>
 
-          {/* Tabs for Course Content */}
-          <Box sx={{ borderBottom: 1, borderColor: '#424242', mb: 3 }}>
-            <Tabs value={selectedTab} onChange={handleTabChange} variant="scrollable" scrollButtons="auto">
-              <Tab icon={<PolicyIcon />} label="Policy" sx={{ color: '#f5f5f5' }} />
-              <Tab icon={<LectureIcon />} label="Lectures" sx={{ color: '#f5f5f5' }} />
-              <Tab icon={<AssignmentIcon />} label="Tutorials" sx={{ color: '#f5f5f5' }} />
-              <Tab icon={<SchoolIcon />} label="PYQs" sx={{ color: '#f5f5f5' }} />
-              <Tab icon={<FeedbackIcon />} label="Feedbacks" sx={{ color: '#f5f5f5' }} />
-              <Tab icon={<ForumIcon />} label="Q&A Forum" sx={{ color: '#f5f5f5' }} />
-            </Tabs>
-          </Box>
+          {/* Tabs */}
+          <Tabs value={selectedTab} onChange={handleTabChange} sx={{ mb: 2 }}>
+            <Tab icon={<PolicyIcon />} label="Policy" />
+            <Tab icon={<LectureIcon />} label="Lectures" />
+            <Tab icon={<AssignmentIcon />} label="Tutorials" />
+            <Tab icon={<SchoolIcon />} label="PYQs" />
+            <Tab icon={<FeedbackIcon />} label="Feedback" />
+          </Tabs>
 
-          {/* Tab Content */}
-          <Box sx={{ mt: 3 }}>
-            {selectedTab === 0 && <Typography variant="body1" sx={{ color: '#bdbdbd' }}>{course.policy || 'No policy available'}</Typography>}
-            {selectedTab === 1 && <Typography variant="body1" sx={{ color: '#bdbdbd' }}>Lectures content goes here...</Typography>}
-            {selectedTab === 2 && <Typography variant="body1" sx={{ color: '#bdbdbd' }}>Tutorials content goes here...</Typography>}
-            {selectedTab === 3 && <Typography variant="body1" sx={{ color: '#bdbdbd' }}>Previous Year Questions (PYQs) content goes here...</Typography>}
-            {selectedTab === 4 && <Typography variant="body1" sx={{ color: '#bdbdbd' }}>Feedbacks content goes here...</Typography>}
-            {selectedTab === 5 && <Typography variant="body1" sx={{ color: '#bdbdbd' }}>Q&A Forum content goes here...</Typography>}
-          </Box>
+          {/* Course Policy */}
+          {selectedTab === 0 && selectedProf?.policy && (
+            <Card sx={{ p: 2 }}>
+              <Typography variant="h6">Course Policy</Typography>
+              <Divider/>
+              <List>
+                {Object.entries(selectedProf.policy).slice(0,-1).map(([key, value]) => (
+                  <ListItem key={key}>
+                    <DoubleArrowIcon sx={{mr:2}} fontSize="small" />
+                    <ListItemText primary={`${key}: ${value || 'N/A'}`} />
+                  </ListItem>
+                ))}
+              </List>
+              {isAdmin && (
+                <Button startIcon={<EditIcon />} onClick={openEditPolicyModal} variant="outlined">Edit Policy</Button>
+              )}
+            </Card>
+          )}
+          {/* Lectures */}
+          {selectedTab === 1 && selectedProf?.policy && (
+            <Card sx={{ p: 2 }}>
+              <Typography variant="h6">Lecture Notes</Typography>
+              <Divider sx={{ mb: 2 }} />
+              {/* <Link href={selectedProf?.lectures?.link} underline="none" color="inherit">
+              <Stack direction="column" alignItems="center" spacing={1}>
+                <IconButton size="large" sx={{ p: 0 }}>
+                  <FolderIcon fontSize="150px" color="primary.main" />
+                </IconButton>
+                <Typography variant="body">{selectedProf?.lectures?.label}</Typography>
+              </Stack>
+              </Link> */}
+              <iframe 
+                src={`https://drive.google.com/embeddedfolderview?id=${selectedProf?.lectures?.link}#grid`} 
+                width="100%" 
+                height="600" 
+              ></iframe>
+            </Card>
+          )}
+          {/* Tutorials */}
+          {selectedTab === 2 && selectedProf?.tutorials && (
+            <Card sx={{ p: 2 }}>
+              <Typography variant="h6">Tutorials</Typography>
+              <Divider sx={{ mb: 2 }} />
+              {/* <Link href={selectedProf?.tutorials?.link} underline="none" color="inherit">
+              <Stack direction="column" alignItems="center" spacing={1}>
+                <IconButton size="large" sx={{ p: 0 }}>
+                  <FolderIcon fontSize="150px" color="primary.main" />
+                </IconButton>
+                <Typography variant="body">{selectedProf?.tutorials?.label}</Typography>
+              </Stack>
+              </Link> */}
+              <iframe 
+                src={`https://drive.google.com/embeddedfolderview?id=${selectedProf?.tutorials?.link}#grid`} 
+                width="100%" 
+                height="600" 
+              ></iframe>
+            </Card>
+          )}
+          {/* PYQ */}
+          {selectedTab === 3 && selectedProf?.pyq && (
+            <Card sx={{ p: 2 }}>
+              <Typography variant="h6">Previous Year Questions</Typography>
+              <Divider sx={{ mb: 2 }} />
+              {/* <Link href={selectedProf?.pyq?.link} underline="none" color="inherit">
+              <Stack direction="column" alignItems="center" spacing={1}>
+                <IconButton size="large" sx={{ p: 0 }}>
+                  <FolderIcon fontSize="150px" color="primary.main" />
+                </IconButton>
+                <Typography variant="body">{selectedProf?.pyq?.label}</Typography>
+              </Stack>
+              </Link> */}
+              <iframe 
+                src={`https://drive.google.com/embeddedfolderview?id=${selectedProf?.pyq?.link}#grid`} 
+                width="100%" 
+                height="600" 
+              ></iframe>
+            </Card>
+          )}
+          {/* Feedback Form */}
+          {selectedTab === 4 && (
+            <Box>
+              <Typography variant="h6">Add Feedback</Typography>
+              <TextField
+                fullWidth
+                multiline
+                rows={3}
+                label="Your Feedback"
+                value={feedbackText}
+                onChange={(e) => setFeedbackText(e.target.value)}
+                sx={{ my: 2 }}
+              />
+              <Button variant="contained" onClick={handleSubmitFeedback}>Submit</Button>
+            </Box>
+          )}
         </Grid>
       </Grid>
+
+      {/* Edit Policy Modal */}
+      <Dialog open={policyModalOpen} onClose={() => setPolicyModalOpen(false)}>
+        <Typography padding={2} variant="h6">Edit Course Policy</Typography>
+        <DialogContent sx={{ display:'flex', flexWrap:'wrap', gap:2, scrollbarWidth:'none' }}>  
+          {Object.keys(policyData).slice(0,-1).map((key) => (
+            <TextField key={key} sx={{width:'40%', fontSize:'16px', my:1}} label={key} name={key} value={policyData[key]} onChange={handlePolicyChange} />
+          ))}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setPolicyModalOpen(false)} color="secondary">Cancel</Button>
+          <Button onClick={savePolicyChanges} variant="contained" color="primary">Save</Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 };

@@ -15,7 +15,6 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-// app.use(express.json());
 app.use(passport.initialize());
 app.use(express.json()); // Add this line to parse JSON request bodies
 app.use(cors());

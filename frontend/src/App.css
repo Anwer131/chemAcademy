@@ -1,5 +1,6 @@
-body {
+html, body {
     font-family: Arial, sans-serif;
+    scrollbar-width: none;
   }
   
   nav {
@@ -13,12 +14,12 @@ body {
     margin-right: 10px;
   }
   
-  form {
+  /* form {
     max-width: 300px;
     margin: auto;
     display: flex;
     flex-direction: column;
-  }
+  } */
   
   input, button {
     margin: 5px 0;

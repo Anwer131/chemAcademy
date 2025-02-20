@@ -4,40 +4,22 @@ import {
   DialogContent, DialogTitle, TextField, Chip
 } from '@mui/material';
 import AuthContext from '../contexts/AuthContext';
-import { updateProfile, fetchEnrolledCourses, unenrollCourse } from '../services/api';
+import { updateProfile, unenrollCourse } from '../services/api';
 
 const Profile = () => {
-  const { user, setUser } = useContext(AuthContext);
-  const [enrolledCourses, setEnrolledCourses] = useState([]);
+  const { user, setUser, enrolledCourses, setEnrolledCourses } = useContext(AuthContext);
   const [openDialog, setOpenDialog] = useState(false);
   const [firstName, setFirstName] = useState(user?.firstName || '');
   const [lastName, setLastName] = useState(user?.lastName || '');
   const [profilePic, setProfilePic] = useState(null);
 
-  // Fetch enrolled courses on component mount
-  useEffect(() => {
-    const loadEnrolledCourses = async () => {
-      try {
-        const courses = await fetchEnrolledCourses();
-        setEnrolledCourses(courses);
-      } catch (error) {
-        console.error('Error loading enrolled courses:', error);
-      }
-    };
-
-    if (user) {
-      loadEnrolledCourses();
-    }
-  }, [user]);
   const handleUnenrollCourse = async (courseId) => {
     try {
       await unenrollCourse(courseId);
       setEnrolledCourses(enrolledCourses.filter(course => course._id !== courseId));
       setUser({ ...user, courses: user.courses.filter(id => id !== courseId) });
-      alert('Successfully unenrolled from the course');
     } catch (error) {
       console.error('Error unenrolling from course:', error);
-      alert('Failed to unenroll from the course');
     }
   };
   const handleProfileUpdate = async () => {

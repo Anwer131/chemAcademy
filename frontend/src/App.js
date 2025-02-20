@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { ThemeProvider, CssBaseline } from '@mui/material';
+import './App.css';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Profile from './pages/Profile';
@@ -16,7 +17,9 @@ import ManageCourses from './pages/ManageCourses';
 import ManageUsers from './pages/ManageUsers';
 import { AuthProvider } from './contexts/AuthContext';
 import darkTheme from './theme';
-
+import AddProfessor from './pages/AddProfessor';
+import Footer from './components/Footer';
+import ScrollToTop from './components/scrollToTop';
 const App = () => {
   return (
     <AuthProvider>
@@ -37,8 +40,11 @@ const App = () => {
             <Route path="/admin/add-course" element={<AddCourse />} />
             <Route path="/admin/add-book" element={<AddBook />} />
             <Route path="/admin/manage-users" element={<ManageUsers />} />
-            <Route path="/admin/manage-courses" element={<ManageCourses />} />  
+            <Route path="/admin/manage-courses" element={<ManageCourses />} />
+            <Route path="/admin/addProfessor/:courseCode" element={<AddProfessor/>}/>
           </Routes>
+          <ScrollToTop />
+          <Footer/>
         </Router>
       </ThemeProvider>
     </AuthProvider>

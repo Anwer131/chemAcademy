@@ -6,4 +6,4 @@ const ratingSchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model("OverallRating", ratingSchema);
+module.exports = mongoose.model("Rating", ratingSchema);
