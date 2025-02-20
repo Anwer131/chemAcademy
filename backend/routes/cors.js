@@ -2,15 +2,15 @@ const cors = require('cors');
 
 const whitelist = ['http://localhost:3000', 'https://chemixlib.netlify.app'];
 
-var corsOptionsDelegate = (req, callback) => {
-    var corsOptions;
-    if (whitelist.indexOf(req.header('Origin')) != -1) {
-        corsOptions = {origin: true};
-    }
-    else {
-        corsOptions = {origin: false};
-    }
-    callback(null, corsOptions);
-}
-exports.cors = cors();
-exports.corsWithOptions = cors(corsOptionsDelegate);
+const corsOptionsDelegate = (req, callback) => {
+  const corsOptions = {
+    origin: whitelist.includes(req.header('Origin')),
+    credentials: true,  // Allow credentials (cookies, authorization headers)
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+  };
+  callback(null, corsOptions);
+};
+
+exports.cors = cors(); // Use for routes that don't need credentials
+exports.corsWithOptions = cors(corsOptionsDelegate); // Use for secured routes
