@@ -1,11 +1,17 @@
-html, body {
-    font-family: Arial, sans-serif;
-    scrollbar-width: none;
-  }
-  
-  nav {
-    background-color: #3f51b5;
-    padding: 10px;
+html{
+  font-family: Arial, sans-serif;
+  scrollbar-width: none;
+}
+body {
+    
+    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
+                        url('./assets/lib_bg.jpg') no-repeat center center/cover;
+    background-size: cover; /* Covers the whole page */
+    /* background-position: center; Centers the image */
+    background-repeat: no-repeat; /* Prevents repetition */
+    background-attachment: fixed;
+    height: 100vh;
+    margin: 0;
   }
   
   nav a {

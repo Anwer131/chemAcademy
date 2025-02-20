@@ -8,7 +8,7 @@ const Footer = () => {
     <Box
       component="footer"
       sx={{
-        backgroundColor: 'background.paper',
+        backgroundColor: 'rgba(0,0,0,0.8)',
         color: 'text.primary',
         display: 'flex',
         flexDirection: 'column',

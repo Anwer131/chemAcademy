@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   Container, Grid, Typography, Card, Tabs, Tab, Box, Button, Divider, CardContent, List, ListItem, ListItemText, IconButton, TextField,
   Dialog, DialogContent, DialogActions
 } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchCourseDetails, updateCoursePolicy, submitFeedback } from '../services/api'; // API calls
+import AuthContext from '../contexts/AuthContext';
 import BookIcon from '@mui/icons-material/Book';
 import PolicyIcon from '@mui/icons-material/Policy';
 import SchoolIcon from '@mui/icons-material/School';
@@ -15,8 +16,10 @@ import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 // import FolderIcon from '@mui/icons-material/Folder';
 import DoubleArrowIcon from '@mui/icons-material/DoubleArrow';
+import LoaderPage from '../components/Loader';
 
 const SingleCourse = () => {
+  const { user } = useContext(AuthContext);
   const { courseCode } = useParams();
   const [course, setCourse] = useState(null);
   const [selectedTab, setSelectedTab] = useState(0);
@@ -26,8 +29,8 @@ const SingleCourse = () => {
   const [rating, setRating] = useState(5);
   const [policyData, setPolicyData] = useState({});
   const navigate = useNavigate();
-  
-  const isAdmin = true; // Change this based on actual authentication logic
+
+  const isAdmin = user?.admin;
 
   useEffect(() => {
     const loadCourseDetails = async () => {
@@ -86,7 +89,7 @@ const SingleCourse = () => {
   };
 
   if (!course) {
-    return <Typography variant="h5" align="center">Loading...</Typography>;
+    return <LoaderPage content={courseCode}/>
   }
 
   const selectedProf = course.professors.find((prof) => prof.name === selectedProfessor);

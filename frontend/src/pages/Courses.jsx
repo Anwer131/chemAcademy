@@ -3,13 +3,19 @@ import { fetchCourses, enrollCourse, deleteCourse } from '../services/api';
 import { Container, Grid, Typography, TextField, Box } from '@mui/material';
 import AuthContext from '../contexts/AuthContext';
 import CourseCard from '../components/CourseCard';
+import LoaderPage from '../components/Loader';
 
 const Courses = () => {
   const { user, setUser, loadEnrolledCourses } = useContext(AuthContext);
   const [courses, setCourses] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [enrollingCourseId, setEnrollingCourseId] = useState(null);
+  const [loading, setLoading] = React.useState(true);
 
+  React.useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 1000); // Simulate loading
+    return () => clearTimeout(timer);
+  }, []);
   // Fetch courses when the component mounts
   useEffect(() => {
     const loadCourses = async () => {
@@ -77,7 +83,8 @@ const Courses = () => {
     course.title.toLowerCase().includes(searchQuery)
   );
 
-  return (
+  return ( loading ? <LoaderPage content="Courses"/>
+   : (
     <Container maxWidth="lg">
       <Box display="flex" alignItems="center" justifyContent="space-between" mt={1}>
         <Typography fontWeight={500} variant="h4">All Courses</Typography>
@@ -104,7 +111,7 @@ const Courses = () => {
         ))}
       </Grid>
     </Container>
-  );
+  ));
 };
 
 export default Courses;

@@ -2,11 +2,19 @@ import React, { useContext} from 'react';
 import { Grid, Container } from '@mui/material';
 import AuthContext from '../contexts/AuthContext';
 import MyCourseCard from '../components/MyCourseCard';
+import LoaderPage from '../components/Loader';
 // import { fetchEnrolledCourses } from '../services/api';
 
 const Home = () => {
   const { user, enrolledCourses } = useContext(AuthContext);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 1000); // Simulate loading
+    return () => clearTimeout(timer);
+  }, []);
   return (
+    loading ? <LoaderPage/> :
     <Container maxWidth="lg" mb={5}>
       <h2>Hey {user ? user.firstName !== "" ? user.firstName : user.username : 'there!'}</h2>
       {user ? (
