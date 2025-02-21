@@ -1,96 +1,135 @@
-const express = require('express');
-const router = express.Router();
-const passport = require('passport');
-const bodyParser = require('body-parser');
-const User = require('../models/user');
-const authenticate = require('../authenticate');
-const cors = require('./cors');
+var express = require('express');
+var router = express.Router();
+var bodyParser = require('body-parser')
+var User = require('../models/user');
+var passport = require('passport');
+var authenticate = require('../authenticate')
+var cors = require('./cors');
 
 router.use(bodyParser.json());
 
-// CORS Preflight
-router.options('*', cors.corsWithOptions, (req, res) => res.sendStatus(200));
-
-// 🔑 GET all users (Admin only)
-router.get('/', cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+/* GET users listing. */
+router.options('*',cors.corsWithOptions,(req,res) => {res.statusCode(200);});
+router.get('/', cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, function(req, res, next) {  
   User.find({})
-    .then(users => res.status(200).json({ success: true, users }))
-    .catch(err => next(err));
+  .then((users) => {
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'application/json');
+    res.json({ success:true, users: users})
+  }, (err) => next(err))
+  .catch((err) => next(err))
+});
+router.put('/:userId/toggle-admin', authenticate.verifyUser, authenticate.verifyAdmin, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.userId);
+    if (user) {
+      user.admin = req.body.admin;
+      await user.save();
+      res.status(200).json({ success: true });
+    } else {
+      res.status(404).json({ success: false, message: 'User not found' });
+    }
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 });
 
-// 📝 User Signup
 router.post('/signup', cors.corsWithOptions, (req, res, next) => {
-  User.register(new User({ username: req.body.username }), req.body.password)
+  User.register(new User({ username: req.body.username}), req.body.password)
     .then(user => {
-      user.firstname = req.body.firstname || '';
-      user.lastname = req.body.lastname || '';
+      // Additional fields
+      if (req.body.firstname) {
+        user.firstname = req.body.firstname;
+      }
+      if (req.body.lastname) {
+        user.lastname = req.body.lastname;
+      }
       return user.save();
     })
     .then(user => {
       passport.authenticate('local')(req, res, () => {
-        res.status(200).json({ success: true, status: '✅ Registration Successful!' });
+
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json({ success: true, status: 'Registration Successful!' });
       });
     })
     .catch(err => {
-      console.error("🔥 Signup error:", err);
-      res.status(500).json({ success: false, status: '❌ Registration Failed', error: err.message });
+      res.statusCode = 500;
+      res.setHeader('Content-Type', 'application/json');
+      res.json({ err: err });
     });
 });
 
-// 🔓 User Login
-router.post('/login', cors.corsWithOptions, (req, res, next) => {
+router.post('/login', cors.corsWithOptions, async (req, res, next) => {
   const { username, password } = req.body;
-
   if (!username || !password) {
-    return res.status(400).json({ success: false, message: '⚠️ Missing credentials' });
+    return res.status(400).json({ success: false, message: 'Missing credentials' });
   }
 
-  User.authenticate()(username, password, (err, user, info) => {
+  // Use passport-local-mongoose's authenticate method directly
+  const auth = User.authenticate();
+  auth(username, password, (err, user, info) => {
     if (err) {
-      console.error("🔥 Authentication error:", err);
-      return res.status(500).json({ success: false, status: '❌ Error during authentication', error: err.message });
+      console.error("Authentication error:", err);
+      return res.status(500).json({ success: false, status: 'Error during authentication', err });
     }
 
     if (!user) {
-      console.warn("⚠️ Login failed:", info);
-      return res.status(401).json({ success: false, status: '❌ Login unsuccessful', message: info.message });
+      console.log("User not found or incorrect password:", info);
+      return res.status(401).json({ success: false, status: 'Login unsuccessful!', err: info.message });
     }
 
+    // Instead of using req.logIn(), generate a JWT token directly
     const token = authenticate.getToken({ _id: user._id });
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
-      status: '✅ Login successful',
+      status: 'Login successful!',
       token,
       user: {
-        _id: user._id,
         username: user.username,
-        firstname: user.firstname,
-        lastname: user.lastname,
+        firstName: user.firstName,
+        lastName: user.lastName,
         admin: user.admin
       }
     });
   });
 });
-
-// 🚪 User Logout
-router.get('/logout', cors.corsWithOptions, (req, res) => {
+router.get('/logout', cors.corsWithOptions, (req,res, next) => {
   if (req.session) {
-    req.session.destroy();
-    res.clearCookie('session-id');
-    res.status(200).json({ success: true, status: '✅ Successfully logged out' });
-  } else {
-    res.status(403).json({ success: false, message: '⚠️ You are not logged in' });
+    req.session.destroy(); //remove the session information in the server side.
+    res.clearCookie('session-id'); // this is used to clear the cookie in the client side.
+    res.redirect('/');
   }
-});
-
-// 🔍 Check JWT Token Validity
-router.get('/checkJWTToken', cors.corsWithOptions, (req, res) => {
-  passport.authenticate('jwt', { session: false }, (err, user, info) => {
-    if (err) return res.status(500).json({ success: false, status: '❌ JWT verification error', error: err.message });
-    if (!user) return res.status(401).json({ success: false, status: '❌ Invalid JWT', error: info });
-
-    res.status(200).json({ success: true, status: '✅ JWT is valid', user });
-  })(req, res);
-});
-
+  else {
+    var err = new Error('You are not logged in!');
+    err.status = 403;
+    return next(err);
+  }
+})
+router.get('/facebook/token', passport.authenticate('facebook-token', {session: false}),
+(req, res) => {
+  if(req.user) {
+    var token = authenticate.getToken({_id: req.user._id});
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'application/json');
+    res.json({ success:true, token: token, status: 'You are Successfuly logged in!'})
+  }
+})
+router.get('/checkJWTToken',cors.corsWithOptions, (req,res) => {
+  passport.authenticate('jwt',{session:false}, (err,user, info) => {
+    if(err){
+      return next(err);
+    }
+    if(!user){
+      res.statusCode = 401;
+      res.setHeader('Content-Type','application/json');
+      res.json({status:'JWT Token invalid', success:false,err:info})
+    }else{
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'application/json');
+      res.json({ status:'JWT Token valid', success:true, user:user})
+    }
+  }) (req,res);
+})
 module.exports = router;
