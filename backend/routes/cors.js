@@ -1,6 +1,6 @@
 const cors = require('cors');
 
-const whitelist = ['http://localhost:3000', 'https://chemixlib.netlify.app'];
+const whitelist = ['http://localhost:3000', 'https://chem-academy.vercel.app'];
 
 const corsOptionsDelegate = (req, callback) => {
   const corsOptions = {

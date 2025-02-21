@@ -2,6 +2,7 @@ import React, { createContext, useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
 const API_URL = "https://chemixlib-api.up.railway.app"
+// const API_URL = "http://localhost:5000"
 
 const AuthContext = createContext();
 

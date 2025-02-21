@@ -44,6 +44,7 @@ router.post('/signup', cors.corsWithOptions, (req, res, next) => {
       if (req.body.lastname) {
         user.lastname = req.body.lastname;
       }
+      user.department = req.body.username.slice(0,3);
       return user.save();
     })
     .then(user => {

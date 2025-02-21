@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 const API_URL = "https://chemixlib-api.up.railway.app";
+// const API_URL = "http://localhost:5000"
 
 /* Get token from localStorage*/
 const getToken = () => localStorage.getItem('token');
@@ -250,9 +251,34 @@ export const addProfessor = async (professor) => {
   // }
 }
 
-export const updateCoursePolicy = async (obj) => {
-  console.log("update course content");
+export const updateCoursePolicy = async (code, profInd, data) => {
+  axios.put(`${API_URL}/courses/${code}/professors/${profInd}/policy`,data,
+    {
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+      },
+    }
+  )
+  .then((response) => {
+    console.log(response.data);
+  })
+  .catch((err) => console.log(err));
 }
-export const submitFeedback = async (obj) => {
-  console.log("submit feedback")
-}
+export const submitFeedback = async (courseCode, professorIndex, feedbackData) => {
+  const token = getToken();
+  try {
+    const response = await axios.post(
+      `${API_URL}/courses/${courseCode}/${professorIndex}/feedback`,
+      feedbackData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error submitting feedback:', error.response?.data || error.message);
+    throw error;
+  }
+};

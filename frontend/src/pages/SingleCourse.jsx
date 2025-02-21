@@ -1,10 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react';
 import {
   Container, Grid, Typography, Card, Tabs, Tab, Box, Button, Divider, CardContent, List, ListItem, ListItemText, IconButton, TextField,
-  Dialog, DialogContent, DialogActions
+  Dialog, DialogContent, DialogActions, Rating
 } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchCourseDetails, updateCoursePolicy, submitFeedback } from '../services/api'; // API calls
+import {formatDistanceToNow} from 'date-fns'
 import AuthContext from '../contexts/AuthContext';
 import BookIcon from '@mui/icons-material/Book';
 import PolicyIcon from '@mui/icons-material/Policy';
@@ -29,7 +30,7 @@ const SingleCourse = () => {
   const [rating, setRating] = useState(5);
   const [policyData, setPolicyData] = useState({});
   const navigate = useNavigate();
-
+  if(!user) navigate('/login');
   const isAdmin = user?.admin;
 
   useEffect(() => {
@@ -39,7 +40,6 @@ const SingleCourse = () => {
         setCourse(data);
         if (data.professors && data.professors.length > 0) {
           setSelectedProfessor(data.professors[0].name);
-          console.log(data.professors[0]);
         }
       } catch (error) {
         console.error('Error loading course details:', error);
@@ -66,8 +66,9 @@ const SingleCourse = () => {
   };
 
   const savePolicyChanges = async () => {
+    const professorIndex = course.professors.findIndex((prof) => prof.name === selectedProfessor);
     try {
-      await updateCoursePolicy(courseCode, selectedProfessor, policyData);
+      await updateCoursePolicy(courseCode, professorIndex, policyData);
       setPolicyModalOpen(false);
       const updatedCourse = await fetchCourseDetails(courseCode);
       setCourse(updatedCourse);
@@ -77,16 +78,26 @@ const SingleCourse = () => {
   };
 
   const handleSubmitFeedback = async () => {
+    if (!feedbackText.trim()) {
+      alert("Feedback cannot be empty.");
+      return;
+    }
+  
     try {
-      await submitFeedback(courseCode, selectedProfessor, { rating, comment: feedbackText });
+      const professorIndex = course.professors.findIndex((prof) => prof.name === selectedProfessor);
+      await submitFeedback(courseCode, professorIndex, { rating, comment: feedbackText });
       setFeedbackText('');
       setRating(5);
+  
+      // Refresh course details to display updated feedback
       const updatedCourse = await fetchCourseDetails(courseCode);
       setCourse(updatedCourse);
     } catch (error) {
       console.error('Error submitting feedback:', error);
+      alert('Failed to submit feedback. Please try again.');
     }
   };
+  
 
   if (!course) {
     return <LoaderPage content={courseCode}/>
@@ -237,20 +248,53 @@ const SingleCourse = () => {
           )}
           {/* Feedback Form */}
           {selectedTab === 4 && (
-            <Box>
-              <Typography variant="h6">Add Feedback</Typography>
+            <Card sx={{ p: 2 }}>
+              <Typography variant="h6">Professor Feedback</Typography>
+              <Divider sx={{ my: 2, borderBottomWidth:'3px' }} />
+
+              {/* Existing Feedback */}
+              {selectedProf.feedback.length > 0 ? (
+                selectedProf.feedback.map((fb, index) => (
+                  <>
+                  <Box key={index} sx={{ display:'flex', flexWrap:'wrap', gap:1, mb: 1, p: 1}}>
+                    <Typography sx={{width: {sm: '20%' }}} variant="subtitle2">{fb.author?.username || 'Anonymous'}</Typography>
+                    <Rating sx={{width: {sm: '20%' }, fontSize:'15px', mt:0.5}} value={fb.rating} readOnly />
+                    <Typography variant="caption" color="text.secondary">
+                      {formatDistanceToNow(new Date(fb.createdAt), { addSuffix: true })} {/* 👈 Shows "2 hours ago" */}
+                    </Typography>
+                    <Typography sx={{width:'100%'}} variant="body2">{fb.comment}</Typography>
+                    
+                  </Box>
+                  <Divider variant='fullwidth' />
+                  </>
+                ))
+              ) : (
+                <Typography variant="body2" color="text.secondary">No feedback yet.</Typography>
+              )}
+
+              {/* Feedback Form */}
+              <Typography variant="h6" sx={{ mb: 1, mt:2 }}>Add Your Feedback</Typography>
               <TextField
+                required
                 fullWidth
                 multiline
                 rows={3}
                 label="Your Feedback"
                 value={feedbackText}
                 onChange={(e) => setFeedbackText(e.target.value)}
-                sx={{ my: 2 }}
+                sx={{ mb: 2 }}
               />
-              <Button variant="contained" onClick={handleSubmitFeedback}>Submit</Button>
-            </Box>
+              <Rating
+                required
+                name="rating"
+                value={rating}
+                onChange={(event, newValue) => setRating(newValue)}
+                sx={{ mb: 2, mr:2 }}
+              />
+              <Button variant="contained" onClick={handleSubmitFeedback}>Submit Feedback</Button>
+            </Card>
           )}
+
         </Grid>
       </Grid>
 

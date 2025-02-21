@@ -12,13 +12,18 @@ import {
   IconButton
 } from '@mui/material';
 import { Delete } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 
 const Books = () => {
   const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [books, setBooks] = useState([]);
-
+  useEffect(() => {
+    if(!user) navigate('/login');
+  },[user,navigate]);
   // Fetch all books on component mount
   useEffect(() => {
+    if(!user) return;
     const loadBooks = async () => {
       try {
         const data = await fetchBooks();
@@ -28,7 +33,7 @@ const Books = () => {
       }
     };
     loadBooks();
-  }, []);
+  }, [user]);
 
   // Handle deleting a book (admin only)
   const handleDeleteBook = async (bookId) => {

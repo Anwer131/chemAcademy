@@ -37,6 +37,40 @@ router.route('/')
     res.status(500).json({ message: err.message });
   }
 });
+router.put('/:courseCode/professors/:professorIndex/policy', cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, async (req, res, next) => {
+  const { courseCode, professorIndex } = req.params;
+  const updatedPolicy = req.body;
+
+  try {
+    const course = await Course.findOne({ code: courseCode });
+
+    if (!course) {
+      return res.status(404).json({ success: false, message: `Course '${courseCode}' not found.` });
+    }
+
+    if (!course.professors[professorIndex]) {
+      return res.status(404).json({ success: false, message: `Professor at index ${professorIndex} not found.` });
+    }
+
+    // Update the professor's policy
+    course.professors[professorIndex].policy = {
+      ...course.professors[professorIndex].policy.toObject(),
+      ...updatedPolicy
+    };
+
+    const updatedCourse = await course.save();
+
+    return res.status(200).json({
+      success: true,
+      message: 'Course policy updated successfully.',
+      updatedPolicy: updatedCourse.professors[professorIndex].policy
+    });
+
+  } catch (err) {
+    console.error('Error updating policy:', err);
+    return next(err); // Pass error to global error handler
+  }
+});
 
 router.delete('/:courseId', authenticate.verifyUser, authenticate.verifyAdmin, async (req, res) => {
   try {

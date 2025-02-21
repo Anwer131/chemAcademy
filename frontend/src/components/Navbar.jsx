@@ -72,7 +72,6 @@ const Navbar = () => {
       <List>
         {navLinks.map((link) => (
           <ListItem
-            button
             key={link.label}
             component={Link}
             to={link.path}
@@ -96,24 +95,24 @@ const Navbar = () => {
               {user.username}
             </Typography>
           </ListItem>
-          <ListItem button component={Link} to="/profile">
+          <ListItem component={Link} to="/profile">
             <ListItemText sx={{color:'white'}} primary="Profile" />
           </ListItem>
           {user.admin && (
-            <ListItem button component={Link} to="/admin">
+            <ListItem component={Link} to="/admin">
               <ListItemText sx={{color:'white'}} primary="Admin Panel" />
             </ListItem>
           )}
-          <ListItem button onClick={handleLogout}>
+          <ListItem onClick={handleLogout}>
             <ListItemText sx={{color:'white'}} primary="Logout" />
           </ListItem>
         </>
       ) : (
         <>
-          <ListItem button component={Link} to="/login">
+          <ListItem component={Link} to="/login">
             <ListItemText sx={{color:'white'}} primary="Login" />
           </ListItem>
-          <ListItem button component={Link} to="/register">
+          <ListItem component={Link} to="/register">
             <ListItemText sx={{color:'white'}} primary="Register" />
           </ListItem>
         </>
