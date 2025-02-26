@@ -26,10 +26,9 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('token', res.data.token);
       setToken(res.data.token);
       setUser(res.data.user);
-      console.log("Login successful, token saved in local storage");
     } catch (err) {
-      console.error('Login Error:', err.response ? err.response.data : err.message);
-      throw err;
+      const errorMessage = err.response?.data?.message || 'Invalid credentials. Please try again.';
+      throw new Error(errorMessage); // Throw error with message
     }
   };
   

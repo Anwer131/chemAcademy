@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Fab } from '@mui/material'; // Material UI Floating Action Button
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import { useLocation } from 'react-router-dom';
 
 const ScrollToTop = () => {
+
+  const {pathname} = useLocation();
   const [visible, setVisible] = useState(false);
 
   const toggleVisibility = () => {
@@ -24,6 +27,13 @@ const ScrollToTop = () => {
     window.addEventListener('scroll', toggleVisibility);
     return () => window.removeEventListener('scroll', toggleVisibility);
   }, []);
+
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'auto', // Use 'smooth' if you want animation on route change too
+    });
+  }, [pathname]);
 
   return (
     visible && (

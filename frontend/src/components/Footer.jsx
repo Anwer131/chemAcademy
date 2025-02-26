@@ -1,6 +1,6 @@
 import React from 'react'
-import { Box, Container, Grid, Typography, Link } from '@mui/material'
-import { Facebook, Instagram, X, LinkedIn } from '@mui/icons-material'
+import { Box, Container, Grid, Typography, Link, Divider, IconButton } from '@mui/material'
+import {Instagram, X, LinkedIn, Email } from '@mui/icons-material'
 import logo from '../assets/logo.png'
 
 const Footer = () => {
@@ -22,12 +22,25 @@ const Footer = () => {
         <Grid container spacing={4}>
           <Grid item md={3}>
             <Typography variant="h6" sx={{ fontSize: '1.1rem' }}>About Website</Typography>
-            <Box 
-              component="img" 
-              sx={{ width: '20vw', maxWidth: '300px', marginBottom: 2 }} 
-              src={logo} 
-              alt="logo" 
-            />
+            <Typography variant='body1' color='primary.main' align='justify'>chemAcademy is a dedicated platform designed to support chemical engineering students by providing a comprehensive collection of learning materials, tools, and resources to excel in their academic journey.</Typography>
+            <Divider/>
+            <Typography color='secondary.main'>If you want to contribute content, tools, or ideas to this platform, please connect: </Typography>
+            <IconButton
+              component="a"
+              href="mailto:anwer.webdev@gmail.com"  // Replace with your email
+              color="primary.main"
+              aria-label="Send Email"
+            >
+            <Typography variant="body1">
+                <a
+                  href="mailto:anwer.webdev@gmail.com"
+                  style={{ textDecoration: 'none', color: 'inherit', marginRight:10 }}
+                >
+                  Send Email
+                </a>
+              </Typography>
+              <Email />
+            </IconButton>
           </Grid>
 
           <Grid item md={2}>
@@ -82,39 +95,14 @@ const Footer = () => {
           </Grid>
         </Grid>
 		<Grid container justifyContent="center">
+    <Box display="flex" justifyContent="center" alignItems="center" width="100%">
+      <img 
+        src={logo} 
+        alt="Logo" 
+        style={{ height: '50px', width: 'auto' }} 
+      />
+    </Box>
 		<ul style={{ display: 'flex', alignItems: 'center', listStyle: 'none', padding: 0, gap: '10px' }}>
-			<li>
-				<Link 
-				href="https://www.twitter.com/munazzil131/" 
-				target="_blank" 
-				sx={{
-					transition: 'all 0.3s ease',
-					'&:hover': { 
-					cursor: 'pointer', 
-					color: 'white',  // Change to white on hover
-					transform: 'scale(1.1)',  // Slight zoom effect
-					}
-				}}
-				>
-				<X />
-				</Link>
-			</li>
-			<li>
-				<Link 
-				href="https://www.meta.com" 
-				target="_blank" 
-				sx={{
-					transition: 'all 0.3s ease',
-					'&:hover': { 
-					cursor: 'pointer', 
-					color: 'white',  // Change to white on hover
-					transform: 'scale(1.1)',  // Slight zoom effect
-					}
-				}}
-				>
-				<Facebook />
-				</Link>
-			</li>
 			<li>
 				<Link 
 				href="https://www.linkedin.com/in/munazzil-anwer" 
@@ -130,7 +118,23 @@ const Footer = () => {
 				>
 				<LinkedIn />
 				</Link>
+			</li><li>
+				<Link 
+				href="https://www.twitter.com/munazzil131/" 
+				target="_blank" 
+				sx={{
+					transition: 'all 0.3s ease',
+					'&:hover': { 
+					cursor: 'pointer', 
+					color: 'white',  // Change to white on hover
+					transform: 'scale(1.1)',  // Slight zoom effect
+					}
+				}}
+				>
+				<X />
+				</Link>
 			</li>
+			
 			<li>
 				<Link 
 				href="https://www.instagram.com/munazzil_13" 

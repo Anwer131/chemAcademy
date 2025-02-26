@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Typography, CircularProgress } from '@mui/material';
+import { Box, Typography, LinearProgress } from '@mui/material';
 import { keyframes } from '@emotion/react';
 import logo from '../assets/logo.png'; // Replace with your logo path
 
@@ -66,16 +66,9 @@ const LoaderPage = ({content}) => {
       >
         Loading {content} ...
       </Typography>
-
-      {/* Circular Progress Spinner */}
-      <CircularProgress
-        size={60}
-        thickness={4}
-        sx={{
-          color: 'gray',
-          mt: 4,
-        }}
-      />
+      <Box sx={{ width: '60%', mt:5 }}>
+      <LinearProgress />
+    </Box>
     </Box>
   );
 };

@@ -216,29 +216,6 @@ export const fetchCourseDetails = async (courseCode) => {
   }
 };
 
-// rating
-export const fetchRating = async () => {
-  try {
-    const response = await axios.get(`${API_URL}/ratings`); // Example API endpoint
-    console.log(response.data)
-    return response.data.averageRating || 5;
-  } catch (error) {
-    console.error('Error fetching rating:', error);
-  }
-};
-export const giveRating = async (newRating) => {
-  try {
-    await axios.post(
-      `${API_URL}/ratings`,
-      { rating: newRating },
-      { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
-    );
-    alert('Thank you for your rating!');
-    return newRating || 0;
-  } catch (error) {
-    console.error('Error submitting rating:', error);
-  }
-};
 
 export const addProfessor = async (professor) => {
   // try {
@@ -259,7 +236,7 @@ export const updateCoursePolicy = async (code, profInd, data) => {
     }
   )
   .then((response) => {
-    console.log(response.data);
+    alert(response.data.message);
   })
   .catch((err) => console.log(err));
 }
