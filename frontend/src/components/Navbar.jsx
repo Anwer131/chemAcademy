@@ -10,7 +10,7 @@ import logo from '../assets/logo.png';
 import axios from 'axios';
 import { useTheme, useMediaQuery } from '@mui/material';
 
-const API_URL = "http://chemixlib-api.up.railway.app"; // Change to your server URL
+const API_URL = "https://chemixlib-api.up.railway.app"; // Change to your server URL
 
 const Navbar = () => {
   const { user, token, logout } = useContext(AuthContext);
