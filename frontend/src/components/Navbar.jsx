@@ -1,60 +1,78 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import {
-  AppBar, Toolbar, Typography, Button, Box, Menu, MenuItem, IconButton, Tooltip, Drawer, List, ListItem, ListItemText, Divider
+  AppBar, Toolbar, Typography, Button, Box, Menu, MenuItem, IconButton, Tooltip, Drawer, List, ListItem, ListItemText, Divider, Rating
 } from '@mui/material';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Rating } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import AuthContext from '../contexts/AuthContext';
 import logo from '../assets/logo.png';
+import axios from 'axios';
 import { useTheme, useMediaQuery } from '@mui/material';
 
+const API_URL = "http://chemixlib-api.up.railway.app"; // Change to your server URL
+
 const Navbar = () => {
-  const { user, logout } = useContext(AuthContext);
+  const { user, token, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
   const [anchorEl, setAnchorEl] = useState(null);
   const [ratingAnchorEl, setRatingAnchorEl] = useState(null);
-  const [averageRating, setAverageRating] = useState(4.8);
+  const [averageRating, setAverageRating] = useState(0);
   const [myRating, setMyRating] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
+  // 📝 Fetch the average rating on component mount
+  const fetchRating = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/ratings`);
+      setAverageRating(parseFloat(res.data.averageRating));
+    } catch (error) {
+      console.error('Error fetching ratings:', error);
+    }
+  };
+
+  // ⭐ Submit rating (Requires authentication)
+  const submitRating = async (rating) => {
+    if (!user) {
+      alert("Please login to submit a rating.");
+      return;
+    }
+
+    try {
+      await axios.post(
+        `${API_URL}/ratings`,
+        { rating },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setMyRating(rating); // Update local rating
+      fetchRating(); // Refresh average rating
+    } catch (error) {
+      console.error('Error submitting rating:', error);
+      alert("Error submitting rating. Please try again.");
+    }
+  };
+
+  useEffect(() => {
+    fetchRating(); // Fetch rating when component mounts
+  }, []);
+
   const handleRatingMenuOpen = (event) => setRatingAnchorEl(event.currentTarget);
   const handleRatingMenuClose = () => setRatingAnchorEl(null);
-  
-  // Handlers for opening and closing the dropdown menu
-  const handleMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
 
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleProfile = () => {
-    handleMenuClose();
-    navigate('/profile');
-  };
-
-  const handleAdminPanel = () => {
-    handleMenuClose();
-    navigate('/admin');
-  };
   const handleRatingSubmit = (rating) => {
-    setMyRating(rating);
-    setAverageRating((prevRating) => (prevRating + rating) / 2);
+    submitRating(rating);
     handleRatingMenuClose();
   };
 
-  const handleLogout = () => {
-    logout();
-    navigate('/');
-    setDrawerOpen(false);
-  };
-
+  const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
+  const handleMenuClose = () => setAnchorEl(null);
+  const handleProfile = () => { handleMenuClose(); navigate('/profile'); };
+  const handleAdminPanel = () => { handleMenuClose(); navigate('/admin'); };
+  const handleLogout = () => { logout(); navigate('/'); setDrawerOpen(false); };
   const isActive = (path) => location.pathname === path;
 
   const navLinks = [
@@ -63,12 +81,7 @@ const Navbar = () => {
   ];
 
   const drawerContent = (
-    <Box
-      sx={{ width: 250 }}
-      role="presentation"
-      onClick={() => setDrawerOpen(false)}
-      onKeyDown={() => setDrawerOpen(false)}
-    >
+    <Box sx={{ width: 250 }} role="presentation" onClick={() => setDrawerOpen(false)} onKeyDown={() => setDrawerOpen(false)}>
       <List>
         {navLinks.map((link) => (
           <ListItem
@@ -76,7 +89,7 @@ const Navbar = () => {
             component={Link}
             to={link.path}
             sx={{
-              color:'white',
+              color: 'white',
               backgroundColor: isActive(link.path) ? 'rgba(0,0,0,0.1)' : 'transparent',
             }}
           >
@@ -84,37 +97,18 @@ const Navbar = () => {
           </ListItem>
         ))}
       </List>
-
       <Divider />
-
-      {/* User-specific Options */}
       {user ? (
         <>
-          <ListItem>
-            <Typography variant="subtitle1" sx={{ fontWeight: 'bold', ml: 1 }}>
-              {user.username}
-            </Typography>
-          </ListItem>
-          <ListItem component={Link} to="/profile">
-            <ListItemText sx={{color:'white'}} primary="Profile" />
-          </ListItem>
-          {user.admin && (
-            <ListItem component={Link} to="/admin">
-              <ListItemText sx={{color:'white'}} primary="Admin Panel" />
-            </ListItem>
-          )}
-          <ListItem onClick={handleLogout}>
-            <ListItemText sx={{color:'white'}} primary="Logout" />
-          </ListItem>
+          <ListItem><Typography variant="subtitle1" sx={{ fontWeight: 'bold', ml: 1 }}>{user.username}</Typography></ListItem>
+          <ListItem component={Link} to="/profile"><ListItemText sx={{ color: 'white' }} primary="Profile" /></ListItem>
+          {user.admin && <ListItem component={Link} to="/admin"><ListItemText sx={{ color: 'white' }} primary="Admin Panel" /></ListItem>}
+          <ListItem onClick={handleLogout}><ListItemText sx={{ color: 'white' }} primary="Logout" /></ListItem>
         </>
       ) : (
         <>
-          <ListItem component={Link} to="/login">
-            <ListItemText sx={{color:'white'}} primary="Login" />
-          </ListItem>
-          <ListItem component={Link} to="/register">
-            <ListItemText sx={{color:'white'}} primary="Register" />
-          </ListItem>
+          <ListItem component={Link} to="/login"><ListItemText sx={{ color: 'white' }} primary="Login" /></ListItem>
+          <ListItem component={Link} to="/register"><ListItemText sx={{ color: 'white' }} primary="Register" /></ListItem>
         </>
       )}
     </Box>
@@ -123,12 +117,11 @@ const Navbar = () => {
   return (
     <AppBar position="sticky" sx={{ backgroundColor: 'rgba(0,0,0,1)' }}>
       <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-        {/* Logo */}
         <Box component={Link} to='/' sx={{ height: 40, width: 'auto', mr: 'auto' }}>
           <img src={logo} alt="Logo" style={{ height: '100%', width: 'auto' }} />
         </Box>
 
-        {/* Star Rating (Visible on all screen sizes) */}
+        {/* ⭐ Average Rating */}
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', color: '#fff', mx: 2 }}>
           <Tooltip title="Rate this portal!">
             <IconButton onClick={handleRatingMenuOpen} sx={{ padding: 0 }}>
@@ -138,7 +131,7 @@ const Navbar = () => {
           <Typography variant="body2">{averageRating.toFixed(1)}</Typography>
         </Box>
 
-        {/* Desktop Navigation (Unchanged) */}
+        {/* Desktop Navigation */}
         {!isMobile && (
           <>
             {navLinks.map((link) => (
@@ -150,9 +143,9 @@ const Navbar = () => {
                 sx={{
                   backgroundColor: isActive(link.path) ? 'rgba(255,255,255,0.1)' : 'transparent',
                   color: isActive(link.path) ? 'primary.main' : 'inherit',
+                  mr: 2,
                   '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)', color: 'primary.main' },
                   transition: 'all 0.3s ease',
-                  mr: 2,
                 }}
               >
                 {link.label}
@@ -160,69 +153,40 @@ const Navbar = () => {
             ))}
             {user ? (
               <>
-                <Button
-                  onClick={handleMenuOpen}
-                  variant="contained"
-                  sx={{
-                    textTransform: 'none',
-                    backgroundColor: '#000',
-                    color: '#fff',
-                    '&:hover': { backgroundColor: 'gray' },
-                    ml: 2,
-                  }}
-                  endIcon={<AccountCircleIcon />}
-                >
+                <Button onClick={handleMenuOpen} variant="contained" endIcon={<AccountCircleIcon />} sx={{ backgroundColor: '#000', color: '#fff', ml: 2 }}>
                   {user.username}
                 </Button>
-                <Menu
-                  anchorEl={anchorEl}
-                  open={Boolean(anchorEl)}
-                  onClose={handleMenuClose}
-                  sx={{ mt: 2 }}
-                >
+                <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose} sx={{ mt: 2 }}>
                   <MenuItem onClick={handleProfile}>Profile</MenuItem>
-      
-                  {/* Admin Panel Option (only for admins) */}
-                  {user.admin && (
-                    <MenuItem onClick={handleAdminPanel}>Admin Panel</MenuItem>
-                  )}
-      
+                  {user.admin && <MenuItem onClick={handleAdminPanel}>Admin Panel</MenuItem>}
                   <MenuItem onClick={handleLogout}>Logout</MenuItem>
                 </Menu>
               </>
             ) : (
               <>
-                <Button variant="contained" color="success" component={Link} to="/login" sx={{ mr: 2 }}>
-                  Login
-                </Button>
-                <Button color="inherit" component={Link} to="/register">
-                  Register
-                </Button>
+                <Button variant="contained" color="success" component={Link} to="/login" sx={{ mr: 2 }}>Login</Button>
+                <Button color="inherit" component={Link} to="/register">Register</Button>
               </>
             )}
           </>
         )}
 
-        {/* Mobile Hamburger Menu (Right-aligned) */}
-        {isMobile && (
-          <IconButton edge="end" color="inherit" onClick={() => setDrawerOpen(true)}>
-            <MenuIcon />
-          </IconButton>
-        )}
-
-        {/* Rating Submission Menu */}
-        <Menu anchorEl={ratingAnchorEl} open={Boolean(ratingAnchorEl)} onClose={handleRatingMenuClose} sx={{ mt: 2 }}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 2 }}>
-            <Typography variant="body2" sx={{ mb: 1 }}>Submit your rating:</Typography>
-            <Rating
-              value={myRating}
-              precision={1}
-              onChange={(event, newValue) => handleRatingSubmit(newValue)}
-              sx={{ color: '#ffb400' }}
-            />
-          </Box>
-        </Menu>
+        {/* Mobile Hamburger Menu */}
+        {isMobile && <IconButton edge="end" color="inherit" onClick={() => setDrawerOpen(true)}><MenuIcon /></IconButton>}
       </Toolbar>
+
+      {/* ⭐ Rating Submission Popup */}
+      <Menu anchorEl={ratingAnchorEl} open={Boolean(ratingAnchorEl)} onClose={handleRatingMenuClose} sx={{ mt: 2 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 2 }}>
+          <Typography variant="body2" sx={{ mb: 1 }}>Submit your rating:</Typography>
+          <Rating
+            value={myRating}
+            precision={1}
+            onChange={(event, newValue) => handleRatingSubmit(newValue)}
+            sx={{ color: '#ffb400' }}
+          />
+        </Box>
+      </Menu>
 
       {/* Mobile Drawer */}
       <Drawer anchor="right" open={drawerOpen} onClose={() => setDrawerOpen(false)}>

@@ -216,8 +216,7 @@ export const fetchCourseDetails = async (courseCode) => {
   }
 };
 
-
-//ratings
+// rating
 export const fetchRating = async () => {
   try {
     const response = await axios.get(`${API_URL}/ratings`); // Example API endpoint

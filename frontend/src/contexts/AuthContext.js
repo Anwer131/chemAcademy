@@ -10,7 +10,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [enrolledCourses, setEnrolledCourses] = useState([]);
   const [token, setToken] = useState(localStorage.getItem('token') || null);
-
+  const [loading, setLoading] = useState(true);
   const register = async (userData) => {
     try {
       await axios.post(`${API_URL}/auth/signup`, userData);
@@ -41,6 +41,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const checkAuth = useCallback(async () => {
+    setLoading(true);
     if (token) {
       try {
         const res = await axios.get(`${API_URL}/auth/checkJWTToken`, {
@@ -51,6 +52,7 @@ export const AuthProvider = ({ children }) => {
         logout();
       }
     }
+    setLoading(false);
   }, [token]);
 
   const loadEnrolledCourses = useCallback(async () => {
@@ -87,7 +89,8 @@ export const AuthProvider = ({ children }) => {
         login,
         register,
         logout,
-        loadEnrolledCourses
+        loadEnrolledCourses,
+        loading
       }}
     >
       {children}

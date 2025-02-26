@@ -2,16 +2,18 @@ import React, { useContext, useState ,useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, TextField, Container, Typography, Box } from '@mui/material';
 import AuthContext from '../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const Login = () => {
   const { user, login } = useContext(AuthContext);
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || '/'; // Last accessed URL or home
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   useEffect(() => {
     if (user) {
-      navigate('/'); // Redirect if already logged in
+      navigate(from, { replace: true });
     }
   }, [user, navigate]);
   const handleLogin = async (e) => {

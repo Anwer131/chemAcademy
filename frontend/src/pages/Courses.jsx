@@ -10,12 +10,8 @@ const Courses = () => {
   const [courses, setCourses] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [enrollingCourseId, setEnrollingCourseId] = useState(null);
-  const [loading, setLoading] = React.useState(true);
+  const [loading, setLoading] = useState(true);
 
-  React.useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 1000); // Simulate loading
-    return () => clearTimeout(timer);
-  }, []);
   // Fetch courses when the component mounts
   useEffect(() => {
     const loadCourses = async () => {
@@ -25,6 +21,7 @@ const Courses = () => {
       } catch (error) {
         console.error('Error fetching courses:', error);
       }
+      setLoading(false);
     };
     loadCourses();
   }, []);

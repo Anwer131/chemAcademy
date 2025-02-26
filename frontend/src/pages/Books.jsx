@@ -13,11 +13,13 @@ import {
 } from '@mui/material';
 import { Delete } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import LoaderPage from '../components/Loader';
 
 const Books = () => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const [books, setBooks] = useState([]);
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     if(!user) navigate('/login');
   },[user,navigate]);
@@ -31,6 +33,7 @@ const Books = () => {
       } catch (error) {
         console.error('Error fetching books:', error);
       }
+      setLoading(false);
     };
     loadBooks();
   }, [user]);
@@ -52,7 +55,7 @@ const Books = () => {
     }
   };
 
-  return (
+  return (loading ? <LoaderPage content="Books"/> : (
     <Container maxWidth="lg" sx={{ mt: 5 }}>
       <Typography variant="h4" align="center" gutterBottom>
         All Books
@@ -101,7 +104,7 @@ const Books = () => {
         </Grid>
       )}
     </Container>
-  );
+  ));
 };
 
 export default Books;

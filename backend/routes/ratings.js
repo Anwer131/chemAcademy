@@ -25,7 +25,7 @@ router.post("/", cors.cors, authenticate.verifyUser, async (req, res) => {
         }
 
         // Create a new rating
-        const newRating = new Rating({ userId, rating });
+        var newRating = new Rating({ userId, rating });
         await newRating.save();
         res.status(201).json({ message: "Rating submitted successfully!" });
     } catch (error) {
@@ -38,7 +38,7 @@ router.get("/", cors.cors, async (req, res) => {
     // console.log(req.body);
     try {
         const ratings = await Rating.find();
-        const averageRating = ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length || 0;
+        var averageRating = ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length || 0;
         averageRating = averageRating.toFixed(1);
 
         res.status(200).json({ averageRating, totalRatings: ratings.length });
