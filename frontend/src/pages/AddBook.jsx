@@ -1,28 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { Container, TextField, Button, Typography, Select, MenuItem, InputLabel, FormControl } from '@mui/material';
 import axios from 'axios';
-
+import { useNavigate } from 'react-router-dom';
+const API_URL = "https://chemixlib-api.up.railway.app"
 const AddBook = () => {
+  const navigate = useNavigate();
   const [title, setTitle] = useState('');
   const [author, setAuthor] = useState('');
-  const [description, setDescription] = useState('');
-  const [driveLink, setDriveLink] = useState('');
+  const [driveId, setDriveId] = useState('');
   const [courseIds, setCourseIds] = useState([]);
   const [courses, setCourses] = useState([]);
 
   useEffect(() => {
-    axios.get('http://localhost:5000/courses')
+    axios.get(`${API_URL}/courses`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      }
+    })
       .then((res) => setCourses(res.data))
       .catch((err) => console.error(err));
   }, []);
 
   const handleAddBook = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); 
     try {
-      await axios.post('http://localhost:5000/books', { title, author, description, driveLink, courseIds }, {
+      await axios.post(`${API_URL}/books`, { title, author, driveId, courseIds }, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       alert('Book added successfully');
+      navigate('/books')
     } catch (err) {
       alert('Failed to add book');
     }
@@ -34,8 +40,7 @@ const AddBook = () => {
       <form onSubmit={handleAddBook}>
         <TextField label="Title" fullWidth margin="normal" value={title} onChange={(e) => setTitle(e.target.value)} />
         <TextField label="Author" fullWidth margin="normal" value={author} onChange={(e) => setAuthor(e.target.value)} />
-        <TextField label="Description" fullWidth margin="normal" multiline rows={4} value={description} onChange={(e) => setDescription(e.target.value)} />
-        <TextField label="Drive Link" fullWidth margin="normal" value={driveLink} onChange={(e) => setDriveLink(e.target.value)} />
+        <TextField label="Drive Id" fullWidth margin="normal" value={driveId} onChange={(e) => setDriveId(e.target.value)} />
 
         <FormControl fullWidth margin="normal">
           <InputLabel>Associate Courses</InputLabel>

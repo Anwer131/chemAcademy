@@ -42,17 +42,27 @@ bookRouter.route('/')
     }, (err) => next(err))
     .catch(err => next(err))
 })
-.post(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, upload.single('pdfFile'), (req, res) => {
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'application/json');
-    res.json(req.file);
+.post(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, async (req, res) => {
+try{
     const newBook = new Book({
-        name:req.file.originalname,
-        cover:"",
-        link:req.file.path,
-        courses:[]
+        title:req.body.title,
+        author: req.body.author,
+        driveId:req.body.driveId,
+        courses:req.body.courseIds || []
     });
-    newBook.save();
+    const savedBook = await newBook.save();
+
+    // Update courses to include this book in their books array
+    if (req.body.courseIds && req.body.courseIds.length > 0) {
+        await Course.updateMany(
+            { _id: { $in: req.body.courseIds } },
+            { $push: { books: savedBook._id } }
+        );
+    }
+    res.status(201).json({message:"Book Added Successfully"});
+} catch (error){
+    res.status(500).json({ message: 'Server Error' });
+}
 })
 .put(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     res.statusCode = 403;

@@ -5,11 +5,13 @@ import {
   Container,
   Typography,
   Grid,
+  Box,
   Card,
   CardContent,
   CardActions,
   Button,
-  IconButton
+  IconButton,
+  Chip
 } from '@mui/material';
 import { Delete } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
@@ -74,15 +76,31 @@ const Books = () => {
                   <Typography variant="subtitle1" color="text.secondary">
                     Author: {book.author}
                   </Typography>
-                  <Typography variant="body2" sx={{ mt: 2 }}>
-                    {book.description}
-                  </Typography>
+                  
+                  <Box sx={{display:'flex', flexWrap:'wrap', mt:1}}>
+                    {book.courses.map((course, index) => (
+                      <Chip
+                        key={index}
+                        label={course}
+                      />
+                    ))}
+                    <Chip label='cll110' color='inherit' size='small' sx={{}}/>
+                  </Box>
                 </CardContent>
                 <CardActions>
                   <Button
                     variant="contained"
                     color="primary"
-                    href={book.driveLink}
+                    href={`https://drive.google.com/file/d/${book.link}/view?usp=sharing`}
+                    target="_blank"
+                    // rel="noopener noreferrer"
+                  >
+                    Open
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    href={`https://drive.google.com/uc?export=download&id=${book.link}`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
