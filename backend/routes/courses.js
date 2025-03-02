@@ -30,7 +30,7 @@ router.route('/')
 })
 .get(cors.cors, authenticate.verifyUser, async (req, res) => {
   try {
-    var courses = await Course.find();
+    var courses = await Course.find().populate('books');
     res.json(courses);
     // console.log(courses)
   } catch (err) {
@@ -84,7 +84,7 @@ router.delete('/:courseId', authenticate.verifyUser, authenticate.verifyAdmin, a
 router.route('/:courseCode')
 .options(cors.corsWithOptions, (req, res) => { res.sendStatus(200); })
 .get(cors.cors,authenticate.verifyUser,(req,res,next)=>{
-  Course.findOne({code:req.params.courseCode})
+  Course.findOne({code:req.params.courseCode}).populate('books')
   .then((course)=>{
     if(course==null){
       err = new Error('Course: ' + req.params.courseCode+ ' not found');

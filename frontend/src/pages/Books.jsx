@@ -32,6 +32,7 @@ const Books = () => {
       try {
         const data = await fetchBooks();
         setBooks(data);
+        console.log(data);
       } catch (error) {
         console.error('Error fetching books:', error);
       }
@@ -81,17 +82,17 @@ const Books = () => {
                     {book.courses.map((course, index) => (
                       <Chip
                         key={index}
-                        label={course}
+                        label={course.code}
+                        size='small'
                       />
                     ))}
-                    <Chip label='cll110' color='inherit' size='small' sx={{}}/>
                   </Box>
                 </CardContent>
                 <CardActions>
                   <Button
                     variant="contained"
                     color="primary"
-                    href={`https://drive.google.com/file/d/${book.link}/view?usp=sharing`}
+                    href={`https://drive.google.com/file/d/${book.driveId}/view?usp=sharing`}
                     target="_blank"
                     // rel="noopener noreferrer"
                   >
@@ -100,7 +101,7 @@ const Books = () => {
                   <Button
                     variant="contained"
                     color="primary"
-                    href={`https://drive.google.com/uc?export=download&id=${book.link}`}
+                    href={`https://drive.google.com/uc?export=download&id=${book.driveId}`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
