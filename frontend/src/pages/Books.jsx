@@ -84,6 +84,7 @@ const Books = () => {
                         key={index}
                         label={course.code}
                         size='small'
+                        sx={{mr:1}}
                       />
                     ))}
                   </Box>

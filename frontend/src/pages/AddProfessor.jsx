@@ -3,7 +3,7 @@ import { Container, Typography, TextField, Button, Box, Card, CardContent } from
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 // import { addProfessor } from '../services/api';
-
+const API_URL = "https://chemixlib-api.up.railway.app"
 const AddProfessor = () => {
   const {courseCode} = useParams();
   const navigate = useNavigate();
@@ -31,7 +31,7 @@ const AddProfessor = () => {
     label:'PYQs',
     link:''
   });
-
+  const [loading, setLoading] = useState(false);
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setCoursePolicy({ ...coursePolicy, [name]: value });
@@ -49,13 +49,14 @@ const AddProfessor = () => {
       };
 
       // Assuming the backend endpoint for adding a professor is '/api/professors'
-      await axios.post(`http://localhost:5000/courses/${courseCode}/professors`, newProfessor, {
+      await axios.post(`${API_URL}/courses/${courseCode}/professors`, newProfessor, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
       navigate(`/courses/${courseCode}`);
     } catch (error) {
       console.error('Error adding professor:', error);
     }
+    setLoading(false);
   };
 
   return (
@@ -118,7 +119,7 @@ const AddProfessor = () => {
                 margin="normal"
                 name={tutorials.label}
                 value={tutorials.label}
-                onChange={(e) => setLectures({...tutorials, label: e.target.value})}
+                onChange={(e) => setTutorials({...tutorials, label: e.target.value})}
               />
               <TextField
                 sx={{width:'40%'}}
@@ -149,7 +150,7 @@ const AddProfessor = () => {
               />
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
-              <Button type="submit" variant="contained" sx={{ bgcolor: '#90caf9' }}>Add Professor</Button>
+              <Button loading={loading} type="submit" variant="contained" sx={{ bgcolor: '#90caf9' }} onClick={() => setLoading(true)}>Add Professor</Button>
             </Box>
           </form>
         </CardContent>

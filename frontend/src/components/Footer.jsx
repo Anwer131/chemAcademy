@@ -24,21 +24,14 @@ const Footer = () => {
             <Typography variant="h6" sx={{ fontSize: '1.1rem' }}>About Website</Typography>
             <Typography variant='body1' color='primary.main' align='justify'>chemAcademy is a dedicated platform designed to support chemical engineering students by providing a comprehensive collection of learning materials, tools, and resources to excel in their academic journey.</Typography>
             <Divider/>
-            <Typography color='secondary.main'>If you want to contribute content, tools, or ideas to this platform, please connect: </Typography>
+            <Typography sx={{mt:2}} color='secondary.main'>If you want to contribute content, tools, or ideas to this platform, please connect: </Typography>
             <IconButton
-              component="a"
+            
               href="mailto:anwer.webdev@gmail.com"  // Replace with your email
               color="primary.main"
               aria-label="Send Email"
             >
-            <Typography variant="body1">
-                <a
-                  href="mailto:anwer.webdev@gmail.com"
-                  style={{ textDecoration: 'none', color: 'inherit', marginRight:10 }}
-                >
-                  Send Email
-                </a>
-              </Typography>
+              <Typography variant="body1">Send Email</Typography>
               <Email />
             </IconButton>
           </Grid>
@@ -86,11 +79,8 @@ const Footer = () => {
           <Grid item md={2}>
             <Typography variant="h6" sx={{ fontSize: '1.1rem' }}>WA Communities</Typography>
             <ul style={{listStyleType:'none', padding: 0}}>
-              <li><Link href="https://chat.whatsapp.com/BxVFEMBYitu5svHrJj7VSL" sx={{ textDecoration: 'none', fontSize: '0.8rem', '&:hover': { cursor: 'pointer', color: 'primary.main' } }}>2022 Entry</Link></li>
-              <li><Link href="https://chat.whatsapp.com/KKPi7AqVnm8tHJX9nXtZZ4" sx={{ textDecoration: 'none', fontSize: '0.8rem', '&:hover': { cursor: 'pointer', color: 'primary.main' } }}>2023 Entry</Link></li>
-              <li><Link href="https://chat.whatsapp.com/J73Fw9diJYmmIRkCmHzk9w" sx={{ textDecoration: 'none', fontSize: '0.8rem', '&:hover': { cursor: 'pointer', color: 'primary.main' } }}>CVL102</Link></li>
-              <li><Link href="https://chat.whatsapp.com/FZ0H4kP24LptIbbmBhZnJ9" sx={{ textDecoration: 'none', fontSize: '0.8rem', '&:hover': { cursor: 'pointer', color: 'primary.main' } }}>CVL103</Link></li>
-              <li><Link href="https://chat.whatsapp.com/Hi1XJlFZ8HcMlVwzgeTkGE" sx={{ textDecoration: 'none', fontSize: '0.8rem', '&:hover': { cursor: 'pointer', color: 'primary.main' } }}>CVL104</Link></li>
+              <li><Link href="https://chat.whatsapp.com/KkKw168OAVoGZTqQ93kgUD" sx={{ textDecoration: 'none', fontSize: '0.8rem', '&:hover': { cursor: 'pointer', color: 'primary.main' } }}>Chemical UG</Link></li>
+              <li><Link href="https://chat.whatsapp.com/EEqO2fWFcQy7dfBtarrekk" sx={{ textDecoration: 'none', fontSize: '0.8rem', '&:hover': { cursor: 'pointer', color: 'primary.main' } }}>Chemical DEs</Link></li>
             </ul>
           </Grid>
         </Grid>

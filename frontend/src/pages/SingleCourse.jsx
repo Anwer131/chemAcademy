@@ -1,10 +1,10 @@
 import React, { useContext, useEffect, useState } from 'react';
 import {
-  Container, Grid, Typography, Card, Tabs, Tab, Box, Button, Divider, CardContent, List, ListItem, ListItemText, IconButton, TextField,
+  Container, Grid, Typography, Card, Tabs, Tab, Box, Button, Divider, CardContent, CardActions,List, ListItem, ListItemText, IconButton, TextField,
   Dialog, DialogContent, DialogActions, Rating
 } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
-import { fetchCourseDetails, updateCoursePolicy, submitFeedback } from '../services/api'; // API calls
+import { fetchCourseDetails, updateCoursePolicy, submitFeedback, fetchBooks, updateCourseBooks } from '../services/api'; // API calls
 import {formatDistanceToNow} from 'date-fns'
 import AuthContext from '../contexts/AuthContext';
 import BookIcon from '@mui/icons-material/Book';
@@ -15,6 +15,7 @@ import FeedbackIcon from '@mui/icons-material/Feedback';
 import LectureIcon from '@mui/icons-material/PlayLesson';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
+import { Download, OpenInNew } from '@mui/icons-material';
 // import FolderIcon from '@mui/icons-material/Folder';
 import DoubleArrowIcon from '@mui/icons-material/DoubleArrow';
 import LoaderPage from '../components/Loader';
@@ -29,6 +30,21 @@ const SingleCourse = () => {
   const [feedbackText, setFeedbackText] = useState('');
   const [rating, setRating] = useState(5);
   const [policyData, setPolicyData] = useState({});
+
+  //states for book modal
+  const [bookModalOpen, setBookModalOpen] = useState(false);
+  const [availableBooks, setAvailableBooks] = useState([]);
+  const [selectedBooks, setSelectedBooks] = useState([]);
+
+  const fetchAvailableBooks = async () => {
+    try {
+      const data = await fetchBooks();
+      setAvailableBooks(data);
+    } catch (error) {
+      console.error('Error fetching books:', error);
+    }
+  };
+  
   const navigate = useNavigate();
   if(!user) navigate('/login');
   const isAdmin = user?.admin;
@@ -38,6 +54,7 @@ const SingleCourse = () => {
       try {
         const data = await fetchCourseDetails(courseCode);
         setCourse(data);
+        setSelectedBooks(data.books);
         if (data.professors && data.professors.length > 0) {
           setSelectedProfessor(data.professors[0].name);
         }
@@ -116,21 +133,59 @@ const SingleCourse = () => {
       <Grid container spacing={2}>
         {/* Books Section */}
         <Grid item xs={12} md={3}>
-          <Card sx={{ p: 2 }}>
-            <Typography variant="h6" sx={{ textAlign: 'center' }}>Books</Typography>
-            <Divider sx={{ mb: 2 }} />
+          <Card sx={{ p: 2 , textAlign:'center', alignItems:'center' }}>
+            <Typography variant="h6" sx={{ textAlign: 'center', alignItems:'center' }}>Books <BookIcon sx={{margin:0}}/></Typography>
+            <Divider sx={{ mb: 1 }} />
             {course.books.length > 0 ? (
               course.books.map((book) => (
-                <Card key={book._id} sx={{ mb: 2 }}>
-                  <CardContent>
-                    <Typography variant="subtitle1"><BookIcon /> {book.title}</Typography>
-                    <Typography variant="body2">Author: {book.author}</Typography>
+                <Card key={book._id} sx={{ mb: 1, border:'1px' }}>
+                  <CardContent sx={{display:'flex', justifyContent:'space-between'}}>
+                    <Box>
+                      <Typography variant="subtitle"> {book.title}</Typography>
+                      <Typography variant="body2">Author: {book.author}</Typography>
+                    </Box>
+                    
+                    <CardActions sx={{margin:0}}>
+                      <IconButton
+                        color="primary"
+                        size='small'
+                        href={`https://drive.google.com/file/d/${book.driveId}/view?usp=sharing`}
+                        target="_blank"  
+                      >
+                        <OpenInNew/>
+                      </IconButton>
+                      <IconButton
+                        color="success"
+                        size='small'
+                        href={`https://drive.google.com/uc?export=download&id=${book.driveId}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Download/>
+                      </IconButton>
+                    </CardActions>
                   </CardContent>
                 </Card>
               ))
             ) : (
               <Typography variant="body2" align="center">No books available</Typography>
             )}
+            <Button
+              startIcon={<AddIcon />}
+              variant="outlined"
+              color="primary"
+              size='small'
+              sx={{
+                mt:1
+              }}
+              onClick={() => {
+                fetchAvailableBooks();
+                setBookModalOpen(true);
+              }}
+            >
+              Add Book
+            </Button>
+
           </Card>
         </Grid>
 
@@ -159,9 +214,9 @@ const SingleCourse = () => {
           {/* Tabs */}
           <Tabs value={selectedTab} onChange={handleTabChange} sx={{ mb: 2 }}>
             <Tab icon={<PolicyIcon />} label="Policy" />
-            <Tab icon={<LectureIcon />} label="Lectures" />
-            <Tab icon={<AssignmentIcon />} label="Tutorials" />
-            <Tab icon={<SchoolIcon />} label="PYQs" />
+            <Tab icon={<LectureIcon />} label={selectedProf?.lectures?.label} />
+            <Tab icon={<AssignmentIcon />} label={selectedProf?.tutorials?.label} />
+            <Tab icon={<SchoolIcon />} label={selectedProf?.pyq?.label} />
             <Tab icon={<FeedbackIcon />} label="Feedback" />
           </Tabs>
 
@@ -186,7 +241,7 @@ const SingleCourse = () => {
           {/* Lectures */}
           {selectedTab === 1 && selectedProf?.policy && (
             <Card sx={{ p: 2 }}>
-              <Typography variant="h6">Lecture Notes</Typography>
+              <Typography variant="h6">{selectedProf?.lectures?.label}</Typography>
               <Divider sx={{ mb: 2 }} />
               {/* <Link href={selectedProf?.lectures?.link} underline="none" color="inherit">
               <Stack direction="column" alignItems="center" spacing={1}>
@@ -207,7 +262,7 @@ const SingleCourse = () => {
           {/* Tutorials */}
           {selectedTab === 2 && selectedProf?.tutorials && (
             <Card sx={{ p: 2 }}>
-              <Typography variant="h6">Tutorials</Typography>
+              <Typography variant="h6">{selectedProf?.tutorials?.label}</Typography>
               <Divider sx={{ mb: 2 }} />
               {/* <Link href={selectedProf?.tutorials?.link} underline="none" color="inherit">
               <Stack direction="column" alignItems="center" spacing={1}>
@@ -228,7 +283,7 @@ const SingleCourse = () => {
           {/* PYQ */}
           {selectedTab === 3 && selectedProf?.pyq && (
             <Card sx={{ p: 2 }}>
-              <Typography variant="h6">Previous Year Questions</Typography>
+              <Typography variant="h6">{selectedProf?.pyq?.label}</Typography>
               <Divider sx={{ mb: 2 }} />
               {/* <Link href={selectedProf?.pyq?.link} underline="none" color="inherit">
               <Stack direction="column" alignItems="center" spacing={1}>
@@ -311,7 +366,42 @@ const SingleCourse = () => {
           <Button onClick={savePolicyChanges} variant="contained" color="primary">Save</Button>
         </DialogActions>
       </Dialog>
+      
+      {/*Book Model*/}
+      <Dialog open={bookModalOpen} onClose={() => setBookModalOpen(false)} maxWidth="sm" fullWidth>
+        <DialogContent>
+          <Box display='flex' justifyContent='space-between'>
+            <Typography variant="h6" sx={{ mb: 2 }}>Select Books for This Course</Typography>
+          <Button variant='outlined' onClick={() => setBookModalOpen(false)} color="secondary" size='small' sx={{padding:0}}>Close</Button>
+          </Box>
+          
+          <List>
+            {availableBooks.map((book) => (
+              <ListItem
+                key={book._id}
+                button
+                onClick={async () => {
+                  if (!selectedBooks.find(b => b._id === book._id)) {
+                    await updateCourseBooks(courseCode,book._id);
+                    setSelectedBooks([...selectedBooks, book]);
+                  }
+                }}
+              >
+                <ListItemText primary={book.title} secondary={`Author: ${book.author}`} />
+                {selectedBooks.find(b => b._id === book._id) && (
+                  <Typography color="success">✓ Selected</Typography>
+                )}
+              </ListItem>
+            ))}
+          </List>
+        </DialogContent>
+        
+      </Dialog>
+
     </Container>
+
+    //BOok addition model:
+    
   );
 };
 

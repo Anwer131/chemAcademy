@@ -54,8 +54,8 @@ const AddCourse = () => {
     <Container maxWidth="sm" sx={{ mt: 5 }}>
       <Typography variant="h4" gutterBottom>Add Course</Typography>
       <form onSubmit={handleAddCourse}>
-        <TextField label="Course Title" fullWidth margin="normal" value={title} onChange={(e) => setTitle(e.target.value)} />
-        <TextField label="Course Code" fullWidth margin="normal" value={code} onChange={(e) => setCode(e.target.value)} error={!validateCode(code)} helperText={!validateCode(code) ? 'Invalid code format' : ''} />
+        <TextField required label="Course Title" fullWidth margin="normal" value={title} onChange={(e) => setTitle(e.target.value)} />
+        <TextField required label="Course Code" fullWidth margin="normal" value={code} onChange={(e) => setCode(e.target.value.toLowerCase())} error={!validateCode(code)} helperText={!validateCode(code) ? 'Invalid code format' : ''} />
         <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 3 }}>Add Course</Button>
       </form>
     </Container>

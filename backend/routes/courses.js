@@ -158,6 +158,28 @@ router.post('/:courseId/enroll', authenticate.verifyUser, async (req, res) => {
 //add a book to the course
 router.route('/:courseCode/:bookId')
 .options(cors.corsWithOptions,(req,res) => res.sendStatus(200))
+.post(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+  Course.findOne({code:req.params.courseCode})
+  .then((course) => {
+    if(course==null){
+      err = new Error('Course: ' + req.params.courseCode+ ' not found');
+      err.status = 404;
+      return next(err);
+    }
+    Book.findById(req.params.bookId)
+    .then((book) => {
+      if(!book){
+        return res.status(404).json({ error: 'Book not found' });
+      }
+      course.books.push(req.params.bookId);
+      book.courses.push(course._id);
+      course.save();
+      book.save();
+    })
+    .catch((err) => next(err))
+  })
+  .catch((err) => next(err))
+})
 .delete(cors.corsWithOptions,authenticate.verifyUser,authenticate.verifyAdmin,(req,res,next)=>{
   Course.findOne({code:req.params.courseCode})
   .then((course)=>{

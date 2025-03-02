@@ -216,7 +216,20 @@ export const fetchCourseDetails = async (courseCode) => {
   }
 };
 
-
+//add book to a course
+export const updateCourseBooks = async (courseCode, bookId) => {
+  try {
+    const response = await axios.post(`${API_URL}/courses/${courseCode}/${bookId}`,{
+      headers:{
+        Authorization: `Bearer ${getToken()}`
+      }
+    })
+    alert(response.data.message);
+  } catch (error) {
+    console.log(error)
+  }
+  
+}
 export const addProfessor = async (professor) => {
   // try {
   //   const data = await axios.post(`${API_URL/api/addprov}`,professor,{
