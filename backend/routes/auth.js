@@ -38,11 +38,11 @@ router.post('/signup', cors.corsWithOptions, (req, res, next) => {
   User.register(new User({ username: req.body.username}), req.body.password)
     .then(user => {
       // Additional fields
-      if (req.body.firstname) {
-        user.firstname = req.body.firstname;
+      if (req.body.firstName) {
+        user.firstName = req.body.firstName;
       }
       if (req.body.lastname) {
-        user.lastname = req.body.lastname;
+        user.lastName = req.body.lastName;
       }
       user.department = req.body.username.slice(0,3);
       return user.save();
