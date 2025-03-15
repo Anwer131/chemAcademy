@@ -13,7 +13,7 @@ passport.deserializeUser(User.deserializeUser());
 
 exports.getToken = (user) => { // creates json web token
     return jwt.sign(user, config.secretKey, {
-        expiresIn: '8h' // token will expire in 360000 seconds
+        expiresIn: '48h' // token will expire in 360000 seconds
     }) 
 };
 

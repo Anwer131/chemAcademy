@@ -1,7 +1,6 @@
 var express = require('express');
 var router = express.Router();
 var bodyParser = require('body-parser')
-var passport = require('passport');
 var Rating = require("../models/rating")
 var authenticate = require('../authenticate')
 var cors = require('./cors');

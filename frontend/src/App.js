@@ -9,6 +9,7 @@ import Register from './pages/Register';
 import AdminDashboard from './pages/AdminDashboard';
 import Courses from './pages/Courses';
 import Books from './pages/Books';
+import ComingSoon from './pages/ComingSoon';
 import SingleCourse from './pages/SingleCourse';
 import AddBook from './pages/AddBook';
 import AddCourse from './pages/AddCourse';
@@ -19,6 +20,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import darkTheme from './theme';
 import Layout from './components/Layout';
 import PrivateRoute from './components/PrivateRoute';
+import Community from './pages/Community';
 
 const App = () => {
   return (
@@ -142,7 +144,16 @@ const App = () => {
                 </PrivateRoute>
               }
             />
-
+            <Route
+              path="/community"
+              element={
+                <PrivateRoute>
+                  <Layout>
+                    <Community />
+                  </Layout>
+                </PrivateRoute>
+              }
+            />
             {/* Redirect any unknown routes */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

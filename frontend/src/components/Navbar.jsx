@@ -78,6 +78,7 @@ const Navbar = () => {
   const navLinks = [
     { label: 'All Courses', path: '/courses' },
     { label: 'All Books', path: '/books' },
+    { label: 'Community', path: '/community'}
   ];
 
   const drawerContent = (

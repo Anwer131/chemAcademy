@@ -8,6 +8,8 @@ var coursesRouter = require("./routes/courses");
 var booksRouter = require("./routes/books");
 var profileRouter = require("./routes/profile")
 var ratingRouter = require("./routes/ratings")
+var roomRouter = require("./routes/rooms");
+var threadRouter = require("./routes/threads");
 
 require('dotenv').config();
 
@@ -27,10 +29,7 @@ if (!mongoURI) {
   process.exit(1);  // Exit if URI is missing
 }
 
-mongoose.connect(mongoURI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
+mongoose.connect(mongoURI)
 .then(() => console.log('✅ MongoDB connected successfully'))
 .catch(err => {
   console.error('❌ MongoDB connection error:', err.message);
@@ -51,7 +50,8 @@ app.use('/books',booksRouter);
 app.use('/profile',profileRouter);
 app.use('/users',userRouter);
 app.use('/ratings',ratingRouter);
-
+app.use('/rooms',roomRouter);
+app.use('/threads',threadRouter);
 
 
 // Start server
