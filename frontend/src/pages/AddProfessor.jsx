@@ -3,7 +3,7 @@ import { Container, Typography, TextField, Button, Box, Card, CardContent } from
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 // import { addProfessor } from '../services/api';
-const API_URL = "https://chemixlib-api.up.railway.app"
+const API_URL = "https://chemacademy.onrender.com"
 const AddProfessor = () => {
   const {courseCode} = useParams();
   const navigate = useNavigate();

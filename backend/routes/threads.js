@@ -11,7 +11,8 @@ router.get('/', cors.corsWithOptions, authenticate.verifyUser, (req, res) => {
 })
 router.get('/:roomId', cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
     Thread.find({ roomId: req.params.roomId })
-        .populate('user')
+        .populate('author')
+        .populate('messages')
         .then((threads) => {
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');
@@ -19,7 +20,7 @@ router.get('/:roomId', cors.corsWithOptions, authenticate.verifyUser, (req, res,
         }, (err) => next(err))
         .catch(err => next(err))
 })
-router.post('/:roomId',cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
+router.post('/:roomId/create',cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
     Room.findById(req.params.roomId)
     .then((room) => {
         if (!room) {
@@ -89,23 +90,40 @@ router.get('/:roomId/:threadId', cors.corsWithOptions, authenticate.verifyUser, 
 })
 
 //posting messages
-router.post('/:threadId', cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
-    
-    Thread.findById(req.params.threadId)
-    .then((thread) => {
-        if (!thread) {
-            res.statusCode = 404;
-            return res.json({ message: 'Thread not found' });
-        }
-        req.body.author = req.user._id;
-        const newMessage = new Message(req.body);
-        return newMessage.save();
-    })
-    .then((message) => {
-        res.statusCode = 201;
-        res.setHeader('Content-Type', 'application/json');
-        res.json(message);
-    })
-    .catch(err => next(err));
-})
+router.post('/:parentId/message', cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
+    const parentId = req.params.parentId;
+
+    req.body.author = req.user._id;
+    const newMessage = new Message(req.body);
+
+    // Save the new message
+    newMessage.save()
+        .then((message) => {
+            // Check if the parent is a Thread
+            return Thread.findById(parentId)
+                .then((thread) => {
+                    if (thread) {
+                        thread.messages.push(message._id);
+                        return thread.save().then(() => message);
+                    }
+
+                    // If not a Thread, check if the parent is a Message
+                    return Message.findById(parentId).then((parentMessage) => {
+                        if (!parentMessage) {
+                            res.statusCode = 404;
+                            return res.json({ message: 'Parent not found' });
+                        }
+
+                        parentMessage.messages.push(message._id);
+                        return parentMessage.save().then(() => message);
+                    });
+                });
+        })
+        .then((message) => {
+            res.statusCode = 201;
+            res.setHeader('Content-Type', 'application/json');
+            res.json(message);
+        })
+        .catch(err => next(err));
+});
 module.exports = router;

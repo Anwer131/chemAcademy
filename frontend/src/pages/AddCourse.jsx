@@ -23,7 +23,7 @@ const AddCourse = () => {
     }
     try {
       const response = await axios.post(
-        'https://chemixlib-api.up.railway.app/courses',
+        'https://-api.up.railway.app/courses',
         { title, code },
         {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },

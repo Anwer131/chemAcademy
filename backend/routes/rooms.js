@@ -45,11 +45,11 @@ router.post('/:id/join',cors.corsWithOptions, authenticate.verifyUser, (req, res
         if(room.members.includes(req.user._id)){
             res.statusCode = 400;
             res.setHeader('Content-Type', 'application/json');
-            return res.json({err:'You are already a member of this room'});
+            res.json({err:'You are already a member of this room'});
         }else if(room.joinRequests.includes(req.user._id)){
             res.statusCode = 400;
             res.setHeader('Content-Type', 'application/json');
-            return res.json({err:'You have already requested to join this room'});
+            res.json({err:'You have already requested to join this room'});
         }else if(room.isPrivate){
             room.joinRequests.push(req.user._id);
             room.save()

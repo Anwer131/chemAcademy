@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = "https://chemixlib-api.up.railway.app";
+const API_URL = "https://chemacademy.onrender.com";
 // const API_URL = "http://localhost:5000"
 
 /* Get token from localStorage*/

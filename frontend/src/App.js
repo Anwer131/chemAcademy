@@ -20,7 +20,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import darkTheme from './theme';
 import Layout from './components/Layout';
 import PrivateRoute from './components/PrivateRoute';
-import Community from './pages/Community';
+// import Community from './pages/Community';
 
 const App = () => {
   return (
@@ -149,7 +149,7 @@ const App = () => {
               element={
                 <PrivateRoute>
                   <Layout>
-                    <Community />
+                    <ComingSoon />
                   </Layout>
                 </PrivateRoute>
               }
